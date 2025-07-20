@@ -1,31 +1,26 @@
 RSpec.describe JPCOARValidator do
+  spec_base_dir = File.dirname(__FILE__)
   context "#validate_jpcoar" do
-    it "should load a XML" do
+    it "should load a XML file and validate it." do
       validator = JPCOARValidator.new("")
-      files = %w[
-        01_departmental_bulletin_paper_oa.xml
-        02_journal_article_embargoed.xml
-        03_journal_article_oa.xml
-        04_journal_article_accepted_embargoed.xml
-        05_doctoral_thesis_oa.xml
-        06_doctoral_thesis_published.xml
-        07_dataset.xml
-        08_conference_object.xml
-        09_departmental_bulletin_paper_restricted_access.xml
-        10_journal_article_metadata_only_external_link.xml
-        11_dataset_external_link.xml
-        12_digital_archive.xml
-        13_digital_archive_dataset_series.xml
-        14_common_metadata_elements_cao.xml
-      ]
-      files.each do |file|
-        doc = LibXML::XML::Document.file(File.join("schema/2.0/samples", file))
+      Dir.glob("schema/2.0/samples/*.xml").each do |file|
+        doc = LibXML::XML::Document.file(file)
         expect {
           results = validator.validate_jpcoar(doc)
           p [file, results]
           expect(results[:error]).to be_empty
         }.not_to raise_error
       end
+    end
+    it "should validate creator/affiliation/nameIdentifier" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/0361-nameIdentifier.xml"))
+    end
+    it "should validate name comma" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file("schema/2.0/samples/14_common_metadata_elements_cao.xml")
+      results = validator.validate_jpcoar(doc)
+      expect(results[:warn].map{|e| e[:error_id]}).not_to include(:no_comma_creator)
     end
   end
 end

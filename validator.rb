@@ -53,6 +53,15 @@ class JPCOARValidator
       GRID: /\Agrid\.[0-9]+\.[0-9a-z]+\z/,
       ROR: /\Ahttps:\/\/ror\.org\/.+\z/,
    }
+   NAME_IDENTIFIER_URI_REGEXP = {
+      #"e-Rad_Researcher": /\A\d{8}\z/,
+      NRID: %r|\Ahttps://nrid\.nii\.ac\.jp/nrid/\d{13}\z|,
+      ORCID: %r|\Ahttps://orcid\.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]\z|,
+      ISNI: %r|\Ahttps://isni\.org/isni/[0-9]{15}[0-9X]\z|,
+      VIAF: %r|\Ahttps://viaf\.org/viaf/\d+\z|,
+      GRID: %r|\Ahttps://www\.grid\.ac/institutes/grid\.[0-9]+\.[0-9a-z]+\z|,
+      ROR: %r|\Ahttps://ror\.org/.+\z|,
+   }
    IDENTIFIER_REGEXP = {
       DOI: /\Ahttps?:\/\/doi\.org\/10\./o,
       HDL: /\Ahttps?:\/\/hdl\.handle\.net\//o,
@@ -311,6 +320,7 @@ class JPCOARValidator
       metadata.find(".//jpcoar:nameIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name_identifier|
          content = name_identifier.content
          scheme = name_identifier.attributes["nameIdentifierScheme"]
+         identifier_uri = name_identifier.attributes["nameIdentifierURI"]
          if content =~ /\Ahttps?:\/\// and scheme != "ROR"
             result[:warn] << {
                message: "nameIdentifier content is in the form of URI: #{content}",
@@ -335,11 +345,21 @@ class JPCOARValidator
                }
             end
          end
+         if identifier_uri and NAME_IDENTIFIER_URI_REGEXP[scheme.to_sym] and not NAME_IDENTIFIER_URI_REGEXP[scheme.to_sym].match(identifier_uri)
+            result[:warn] << {
+               error_id: :nameIdentifierURI_mismatch,
+               message: "nameIdentifierURI value is mismatch: #{scheme} - #{identifier_uri}",
+               identifier: identifier
+            }
+         end
       end
       #3.2 作成者姓名, 4.2 寄与者姓名, 7.2 権利者名
       ["jpcoar:creatorName", "jpcoar:contributorName", "jpcoar:rightsHolderName"].each do |name|
-         metadata.find("./#{name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name_elem|
-            if name_elem.content !~ /.+, .+/
+         metadata.find(".//#{name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name_elem|
+            name_type = name_elem.attributes["nameType"]
+            if name_type and name_type == "Organizational"
+               #skip
+            elsif name_elem.content !~ /.+, .+/
                result[:warn] << {
                   error_id: :no_comma_creator,
                   message: "#{name}: '#{ name_elem.content }' does not contain any separators between family and given name.",
