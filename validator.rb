@@ -41,6 +41,18 @@ class JPCOARValidator
       EVoR: "http://purl.org/coar/version/c_dc82b40f9837b551",
       NA: "http://purl.org/coar/version/c_be7fb7dd8ff6fe43",
    }
+   NAME_IDENTIFIER_REGEXP = {
+      "e-Rad_Researcher": /\A\d{8}\z/,
+      NRID: /\A\d{13}\z/,
+      ORCID: /\A[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]\z/,
+      ISNI: /\A[0-9]{15}[0-9X]\z/,
+      VIAF: /\A\d+\z/,
+      AID: /\AD[AB][0-9]{7}[0-9X]\z/,
+      kakenhi: /\A\d{5}\z/,
+      Ringgold: /\ARIN[0-9]+\z/,
+      GRID: /\Agrid\.[0-9]+\.[0-9a-z]+\z/,
+      ROR: /\Ahttps:\/\/ror\.org\/.+\z/,
+   }
    IDENTIFIER_REGEXP = {
       DOI: /\Ahttps?:\/\/doi\.org\/10\./o,
       HDL: /\Ahttps?:\/\/hdl\.handle\.net\//o,
@@ -298,20 +310,27 @@ class JPCOARValidator
       #3.1 作成者識別子
       metadata.find(".//jpcoar:nameIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name_identifier|
          content = name_identifier.content
-         if content =~ /\Ahttps?:\/\//
+         scheme = name_identifier.attributes["nameIdentifierScheme"]
+         if content =~ /\Ahttps?:\/\// and scheme != "ROR"
             result[:warn] << {
                message: "nameIdentifier content is in the form of URI: #{content}",
                error_id: :nameidentifier_content_is_uri,
                identifier: identifier,
             }
          end
-         scheme = name_identifier.attributes["nameIdentifierScheme"]
-         if scheme
-            case scheme
-            when "NRID", "kakenhi", "GRID"
+         case scheme
+         when "NRID", "kakenhi", "GRID"
+            result[:warn] << {
+               message: "nameIdentifierScheme value is obsolete: #{scheme}",
+               error_id: :nameIdentifierScheme_obsolete,
+               identifier: identifier,
+            }
+         end
+         if NAME_IDENTIFIER_REGEXP[scheme.to_sym]
+            if not NAME_IDENTIFIER_REGEXP[scheme.to_sym].match content
                result[:warn] << {
-                  message: "nameIdentifierScheme value is obsolete: #{scheme}",
-                  error_id: :nameIdentifierScheme_obsolete,
+                  message: "nameIdentifierScheme value is mismatch: #{scheme} - #{content}",
+                  error_id: :nameIdentifier_mismatch,
                   identifier: identifier,
                }
             end
