@@ -1,3 +1,7 @@
 source "https://rubygems.org"
-# gem "oai"
 gem "libxml-ruby"
+
+group :development, :test do
+  gem "rspec"
+end
+
