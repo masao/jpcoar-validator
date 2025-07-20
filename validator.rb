@@ -11,6 +11,8 @@ require "pp"
 require "pathname"
 
 require "libxml"
+require "faraday"
+require "faraday/net_http_persistent"
 
 class URI::HTTP
    def merge_request_uri( query_s )
@@ -82,7 +84,7 @@ class JPCOARValidator
       :NCID     => /\A(AA|AN|BN|BA|BB)[0-9]{7,8}[0-9X]?/o,
    }
 
-   attr_reader :baseurl
+   attr_reader :baseurl, :prefix
    def initialize( url )
       @baseurl = URI.parse( url )
       #schema = http(URI.parse XSD).start do |con|
@@ -94,126 +96,129 @@ class JPCOARValidator
    end
 
    def validate( options = {} )
+      STDERR.puts @baseurl
       result = {
          :warn => [],
          :error=> [],
          :info => [],
       }
-      http( @baseurl ).start do |con|
-         STDERR.puts @baseurl
-         # Identify
-         res, = con.get( @baseurl.merge_request_uri( "verb=Identify" ) )
-      	#res.value
-         xml = res.body
-         parser = LibXML::XML::Parser.string( xml )
-         doc = parser.parse
-         # p doc
-         %w[ repositoryName baseURL protocolVersion  ].each do |e|
-            element = doc.find( "//oai:#{ e }",
-                                "oai:http://www.openarchives.org/OAI/2.0/" )
-            if element.size == 1 and not element.first.content.empty?
-               result[ :info ] << "#{ e }: #{ element.first.content }"
-            else
-               result[ :warn ] << "#{ e } is empty."
-            end
-         end
-         #STDERR.puts "Identify verified."
-
-         # ListMetadataFormats
-         ns = nil
-         res, = con.get( @baseurl.merge_request_uri( "verb=ListMetadataFormats" ) )
-         xml = res.body
-         parser = LibXML::XML::Parser.string( xml )
-         doc = parser.parse
-         element = doc.find( "//oai:metadataFormat",
+      conn = Faraday.new( @baseurl ) do |f|
+         f.adapter :net_http_persistent
+      end
+      # Identify
+      res, = conn.get( @baseurl.merge_request_uri( "verb=Identify" ) )
+      #res.value
+      xml = res.body
+      parser = LibXML::XML::Parser.string( xml )
+      doc = parser.parse
+      # p doc
+      %w[ repositoryName baseURL protocolVersion  ].each do |e|
+         element = doc.find( "//oai:#{ e }",
                              "oai:http://www.openarchives.org/OAI/2.0/" )
-         if element.empty?
-            result[ :error ] << {
-               :message => "No metadataFormat supported.",
-               :error_id => :no_metadataFormat,
-            }
+         if element.size == 1 and not element.first.content.empty?
+            result[ :info ] << "#{ e }: #{ element.first.content }"
          else
-            supported_formats = []
-            element.each do |e|
-               prefix = e.find( "./oai:metadataPrefix",
-                                "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
-               supported_formats << prefix
-               ns = e.find( "./oai:metadataNamespace",
-                            "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
-               if ns == JPCOAR_NAMESPACE
-                  @prefix = prefix
-               end
-            end
-            result[ :info ] << "Supported metadataFormat: " + supported_formats.join( ", " )
-            if @prefix.nil?
-               result[ :error ] << {
-                  :message => "jpcoar metadata format is not supported.",
-                  :error_id => :jpcoar_unsupported,
-               }
-            end
+            result[ :warn ] << "#{ e } is empty."
          end
+      end
+      STDERR.puts "Identify verified."
 
-         # ListRecords
-         params = "&metadataPrefix=#{@prefix}"
-         options.each do |k, v|
-            case k
-            when :from, :until, :set
-               params << "&#{ k }=#{ URI.encode_www_form_component( v ) }"
-            end
-         end
-         if options[ :resumptionToken ]
-	         params = "&resumptionToken=#{ URI.encode_www_form_component( options[ :resumptionToken ] ) }"
-	      end
-         res, = con.get( @baseurl.merge_request_uri( "verb=ListRecords&#{ params }" ) )
-         if not res.code == "200"
-            result[ :error ] << {
-               :error_id => :not_success_http,
-               :message => "The server does not return success code: #{ res.code }",
-               :link => :ListRecords,
-            }
-            return result
-         end
-         xml = res.body
-         doc = nil
-         begin
-            parser = LibXML::XML::Parser.string( xml )
-            doc = parser.parse
-         rescue LibXML::XML::Error => err
-            result[ :error ] << {
-               :error_id => :parse_error,
-               :message => "ListRecords returned malformed XML data.",
-               :link => :ListRecords,
-            }
-            return result
-         end
-         resumption_token = doc.find( "//oai:resumptionToken",
-                                      "oai:http://www.openarchives.org/OAI/2.0/" )
-         if not resumption_token.nil? and not resumption_token.empty?
-            result[ :next_token ] = resumption_token.first.content
-         end
-         element = doc.find( "//oai:metadata",
-                             "oai:http://www.openarchives.org/OAI/2.0/" )
-         result[ :info ] << "The size of ListRecords: #{ element.size }"
-      	if element.empty?
-            result[ :warn ] << {
-	            :message => "ListRecords returned zero records.",
-	            :link => :ListRecords,
-	            :error_id => :zero_listrecords,
-	         }
-	      end
+      # ListMetadataFormats
+      ns = nil
+      res = conn.get( @baseurl.merge_request_uri( "verb=ListMetadataFormats" ) )
+      xml = res.body
+      parser = LibXML::XML::Parser.string( xml )
+      doc = parser.parse
+      element = doc.find( "//oai:metadataFormat",
+                          "oai:http://www.openarchives.org/OAI/2.0/" )
+      if element.empty?
+         result[ :error ] << {
+            :message => "No metadataFormat supported.",
+            :error_id => :no_metadataFormat,
+         }
+      else
+         supported_formats = []
          element.each do |e|
-            # metadata = e.inner_xml.strip
-            # metadata = LibXML::XML::Document.string( metadata )
-            metadata = LibXML::XML::Document.new
-            metadata.root = e.child.copy( true )
-            if metadata.root.nil? or e.child.empty?	# adhoc for XooNips.
-               metadata.root = e.child.next.copy( true )
+            prefix = e.find( "./oai:metadataPrefix",
+                             "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+            supported_formats << prefix
+            ns = e.find( "./oai:metadataNamespace",
+                         "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+            if ns == JPCOAR_NAMESPACE
+               @prefix = prefix
             end
-            identifier = e.parent.find( "./oai:header/oai:identifier",
-                                       "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
-            validate_jpcoar( metadata, identifier ).each do |k, v|
-               result[k] += v
-            end
+         end
+         result[ :info ] << "Supported metadataFormat: " + supported_formats.join( ", " )
+         if @prefix.nil?
+            result[ :error ] << {
+               :message => "jpcoar metadata format is not supported.",
+               :error_id => :jpcoar_unsupported,
+            }
+         end
+      end
+      STDERR.puts "ListMetadataFormat verified."
+
+      # ListRecords
+      params = "&metadataPrefix=#{@prefix}"
+      options.each do |k, v|
+         case k
+         when :from, :until, :set
+            params << "&#{ k }=#{ URI.encode_www_form_component( v ) }"
+         end
+      end
+      if options[ :resumptionToken ]
+	      params = "&resumptionToken=#{ URI.encode_www_form_component( options[ :resumptionToken ] ) }"
+	   end
+      STDERR.puts "ListRecords: #{params.inspect}"
+      res = conn.get( @baseurl.merge_request_uri( "verb=ListRecords&#{ params }" ) )
+      if not res.status == 200
+         result[ :error ] << {
+            :error_id => :not_success_http,
+            :message => "The server does not return success code: #{ res.status }",
+            :link => :ListRecords,
+         }
+         return result
+      end
+      xml = res.body
+      doc = nil
+      begin
+         parser = LibXML::XML::Parser.string( xml )
+         doc = parser.parse
+      rescue LibXML::XML::Error => err
+         result[ :error ] << {
+            :error_id => :parse_error,
+            :message => "ListRecords returned malformed XML data.",
+            :link => :ListRecords,
+         }
+         return result
+      end
+      resumption_token = doc.find( "//oai:resumptionToken",
+                                   "oai:http://www.openarchives.org/OAI/2.0/" )
+      if not resumption_token.nil? and not resumption_token.empty?
+         result[ :next_token ] = resumption_token.first.content
+      end
+      element = doc.find( "//oai:metadata",
+                          "oai:http://www.openarchives.org/OAI/2.0/" )
+      result[ :info ] << "The size of ListRecords: #{ element.size }"
+      if element.empty?
+         result[ :warn ] << {
+	         :message => "ListRecords returned zero records.",
+	         :link => :ListRecords,
+	         :error_id => :zero_listrecords,
+	      }
+	   end
+      element.each do |e|
+         # metadata = e.inner_xml.strip
+         # metadata = LibXML::XML::Document.string( metadata )
+         metadata = LibXML::XML::Document.new
+         metadata.root = e.child.copy( true )
+         if metadata.root.nil? or e.child.empty?	# adhoc for XooNips.
+            metadata.root = e.child.next.copy( true )
+         end
+         identifier = e.parent.find( "./oai:header/oai:identifier",
+                                     "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+         validate_jpcoar( metadata, identifier ).each do |k, v|
+            result[k] += v
          end
       end
       result
@@ -361,7 +366,7 @@ class JPCOARValidator
             name_type = name_elem.attributes["nameType"]
             if name_type and name_type == "Organizational"
                #skip
-            elsif name_elem.content !~ /.+, .+/
+            elsif name_elem.content !~ /.+, .+/ and name_elem.content.size < 20
                result[:warn] << {
                   error_id: :no_comma_creator,
                   message: "#{name}: '#{ name_elem.content }' does not contain any separators between family and given name.",
@@ -782,13 +787,13 @@ end
 class JPCOARValidatorFromString < JPCOARValidator
    def initialize( xml )
       @xml = xml
-      @xml_schema = LibXML::XML::Schema.new( JUNII2_XSD )
+      @xml_schema = LibXML::XML::Schema.new( XSD )
    end
    def validate
       parser = LibXML::XML::Parser.string( @xml )
       begin
         doc = parser.parse
-        validate_junii2( doc )
+        validate_jpcoar( doc )
       rescue LibXML::XML::Error => err
         { :error => [
             :error_id => :parse_error,

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja" xml:lang="ja">
+<head>
+<meta charset="utf-8" />
+<link rev="made" href="mailto:tmasao@acm.org" />
+<link rel="stylesheet" href="default.css" type="text/css" />
+<title>JPCOAR Validator</title>
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script>
+$(function() {
+  $( "#tabs" ).tabs({
+<% if @xml %>
+    active: 1
+<% end %>
+  });
+});
+</script>
+</head>
+<body
+<% if @data %>
+onload="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none'"
+<% end %>
+>
+<div class="last-update">最終更新日: <%= last_modified.strftime '%Y年%m月%d日' %></div>
+<h1>JPCOAR Validator</h1>
+<div id="tabs">
+<ul>
+<li><a href="#tabs-1">Validate by baseURL</a></li>
+<li><a href="#tabs-2">Validate by XML text</a></li>
+</ul>
+<div id="tabs-1">
+<div class="form">
+<form action="<%=h request.script_name %>" method="GET">
+<input type="text" name="url" value="<%=h( @url || "http://" ) %>" size="70" />
+<input type="submit" value="  Validate!  " /><br>
+<div id="toggle_option">
+<a href="#" onclick="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none';">詳細設定 &raquo;</a>
+</div>
+<div id="form_option" style="display:none">
+<label for="from">From (yyyy-mm-dd):</label>
+<input type="text" name="from" value="<%=h @options[:from] %>" size="20"/>
+<label for="until">Until (yyyy-mm-dd):</label>
+<input type="text" name="until" value="<%=h @options[:until] %>" size="20"/><br>
+<label for="set">Set:</label>
+<input type="text" name="set" value="<%=h @options[:set] %>"/>
+</div>
+</div>
+</form>
+</div>
+<div id="tabs-2">
+<div class="form">
+<form action="<%=h request.script_name %>" method="POST">
+<textarea name="xml" rows="10" cols="70" placeholder="<%=h %Q|<jpcoar xmlns="#{ JPCOARValidator::NAMESPACES[:jpcoar] }" version="3.1"></jpcoar>| %>"><%=h @xml %></textarea>
+<input type="submit" value="  Validate!  " />
+</div>
+</div>
+</div>
+<div class="help-text">
+<p>
+OAI-PMHサーバが、<a href="https://schema.irdb.nii.ac.jp/ja/schema/2.0/">JPCOARスキーマメタデータ</a>に則ったXML形式を出力しているかを、XML Schemaにもとづいた、データの妥当性検証により確認します。
+上記の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
+<a href="<%=h help_url %>">→ 詳細・ヘルプ</a>
+</p>
+</div>
+<% if not @data %>
+<p>例:</p>
+<ul>
+<% [["https://repository.kulib.kyoto-u.ac.jp/dspace-oai/request","京都大学 KURENAI"],
+    ["https://eprints.lib.hokudai.ac.jp/dspace-oai/request", "北海道大学 HUSCAP"],
+    ["https://mitizane.ll.chiba-u.jp/cgi-bin/oai/oai2.0", "千葉大学 CURATOR"],
+    ["https://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php", "慶応大学 KOARA"],
+    ["https://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository", "山口大学 YUNOCA"],
+    ["https://tsukuba.repo.nii.ac.jp/oai", "筑波大学 Tulips-R"],
+    ["https://www.lib.kobe-u.ac.jp/infolib/oai_repository/pmh/G0000003-repository", "神戸大学 Kernel"],
+    ["https://catalog.lib.kyushu-u.ac.jp/mmd/mmd_api/oai-pmh/", "九州大学 QIR"],
+   ].each do |url, label| %>
+  <li><a href="?url=<%=h url %>"><%=h label %></a>
+      <span class="recent"><a href="?url=<%=h url %>&amp;from=<%=h (Date.today-30).to_s %>">（直近一ヶ月分をチェック）</a>
+<% end %>
+</ul>
+<!--
+<ul>
+  <li><a href="http://drf.lib.hokudai.ac.jp/drf/index.php?%E5%8F%82%E5%8A%A0%E6%A9%9F%E9%96%A2%E4%B8%80%E8%A6%A7">DRF 参加機関一覧</a>
+  <li><a href="http://www.opendoar.org/find.php?cID=108">OpenDOAR: Country (Japan)</a>
+</ul>
+-->
+<ul>
+  <li class="github"><a href="https://github.com/masao/jpcoar-validator">ソースコード (GitHub)</a>
+</ul>
+<% else %>
+<div id="message">
+<% if @data[ :error ].empty? and @data[ :warn ].empty? %>
+<p id="success">
+成功!!
+OAI-PMHを通じて取得したレコードに問題は見つかりませんでした。
+</p>
+<% end %>
+<% [ :info, :error, :warn ].each do |k| %>
+<% next if @data[ k ].nil? or @data[ k ].empty? %>
+<div id="<%=h k %>">
+<h2><%=h k.to_s.capitalize %> : <%=h @data[ k ].size %></h2>
+<ol>
+<% @data[ k ].each do |e| %>
+  <% if e.kind_of?( Hash ) %>
+  <li><%=h e[ :message ] %>
+      <% if e[ :error_id ] %>
+      <a href="<%=h help_url %>#user-content-<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
+      <% end %>
+      <% if @validator.baseurl %>
+      <% if e[ :link ] == :ListMetadataFormats %>
+      <br>at <a href="<%=h @validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
+      <% elsif e[ :link ] == :ListRecords %>
+      <br>at <a href="<%=h @validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=<%=h @validator.prefix %><%= "&" + @options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not @options.empty? %>">ListRecords</a>
+      <% elsif e[ :identifier ] %>
+      <br>for <a href="<%=h @validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=<%=h @validator.prefix %>"><%=h e[ :identifier ] %></a>
+      <% end %>
+      <% end %>
+  <% else %>
+  <li><%=h e %>
+  <% end %>
+<% end %>
+</ol>
+</div>
+<% end %>
+<% end %>
+<% if @data and @data[ :next_token ] %>
+<p class="next_token">
+<a href="?url=<%=h @validator.baseurl %>&amp;resumptionToken=<%=h @data[ :next_token ] %>">続きのレコードをチェックする</a>
+</p>
+<% end %>
+<hr />
+<div id="footer">
+<address>高久雅生 (Masao Takaku)<br />
+</div>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-389547-7', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>
