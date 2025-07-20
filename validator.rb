@@ -30,6 +30,7 @@ class JPCOARValidator
       dc: "http://purl.org/dc/elements/1.1/",
       dcterms: "http://purl.org/dc/terms/",
       datacite: "https://schema.datacite.org/meta/kernel-4/",
+      dcndl: "http://ndl.go.jp/dcndl/terms/",
    }
    COAR_VERSION_TYPE = {
       AO: "http://purl.org/coar/version/c_b1a7d7d4d402bcce",
@@ -307,7 +308,7 @@ class JPCOARValidator
       end
       #3. 作成者
       type = metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").first
-      resource_uri = type.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").to_s
+      resource_uri = type.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").value
       creators = metadata.find("./jpcoar:creator", "jpcoar:#{NAMESPACES[:jpcoar]}")
       if resource_uri =~ %r!http://purl.org/coar/resource_type/(c_46ec|c_7a1f|c_bdcc|c_db06)! and creators.empty?
          result[:error] << {
@@ -398,8 +399,19 @@ class JPCOARValidator
          type = e.attributes["contributorType"]
          if type.nil?
             result[:warn] << {
-               error_id: contributor_type_not_found,
+               error_id: :contributor_type_not_found,
                message: "contributorType attribute not defined.",
+               identifier: identifier,
+            }
+         end
+      end
+      #5. アクセス権
+      metadata.find("./dcterms:accessRights", "dcterms:#{NAMESPACES[:dcterms]}").each do |e|
+         resource_uri = e.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource")
+         if resource_uri.nil?
+            result[:error] << {
+               error_id: :access_rights_without_rdf_resouce,
+               message: "Element 'dcterms:accessRights' needs @rdf:resource attribute: #{e.content}",
                identifier: identifier,
             }
          end
@@ -481,10 +493,11 @@ class JPCOARValidator
       end
       #17. 出版バージョン
       metadata.find("./oaire:version", "oaire:#{NAMESPACES[:oaire]}").each do |e|
-         if not COAR_VERSION_TYPES[e.content.to_sym] or COAR_VERSION_TYPES[e.content.to_sym] != e.attributes["rdf:resource"].to_s
+         resource_uri = e.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").value
+         if not COAR_VERSION_TYPES[e.content.to_sym] or COAR_VERSION_TYPES[e.content.to_sym] != resource_uri
             result[:error] << {
                error_id: :coar_version_type_mismatch,
-               message: "Element 'oaire:version' should comform to COAR Version Vocab: #{e.content} !=  #{e.attributes["rdf:resource"].to_s}"
+               message: "Element 'oaire:version' should comform to COAR Version Vocab: #{e.content} !=  #{resource_uri}"
             }
          end
       end
@@ -598,7 +611,8 @@ class JPCOARValidator
       end
       #28. 学位授与番号
       metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").each do |e|
-         resource_uri = e.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource")
+         resource_uri = e.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").value
+         #p resource_uri
          if resource_uri == "http://purl.org/coar/resource_type/c_db06"
             ["dcndl:dissertationNumber", "dcndl:degreeName", "dcndl:dateGranted", "jpcoar:degreeGrantor"].each do |name|
                prefix, = name.split(/:/)

@@ -12,9 +12,11 @@ RSpec.describe JPCOARValidator do
         }.not_to raise_error
       end
     end
-    it "should validate creator/affiliation/nameIdentifier" do
+    it "should validate the presence of accessRights@rdf:resource." do
       validator = JPCOARValidator.new("")
-      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/0361-nameIdentifier.xml"))
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/05_accessRights_rdf_resource.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resouce)
     end
     it "should validate name comma" do
       validator = JPCOARValidator.new("")
