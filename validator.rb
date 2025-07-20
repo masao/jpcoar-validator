@@ -260,7 +260,7 @@ class JPCOARValidator
          title_elem.each do |e|
             lang = xml_lang(e)
             if lang.nil?
-               result[:warn] << {
+               result[:error] << {
                   message: "Elements #{name} needs a 'xml:lang' attribute.",
                   error_id: :xmllang_not_found,
                   identifier: identifier,
@@ -270,14 +270,31 @@ class JPCOARValidator
             end
          end
          if langs.uniq.length != langs.length
-            result[:warn] << {
+            result[:error] << {
                message: "Title element '#{name}': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
                error_id: :xmllang_duplicated,
                identifier: identifier,
             }
          end
+         if (langs.include?("ja-Latn") or langs.include?("ja-Kana")) and not langs.include?("ja")
+            result[:error] << {
+               message: "Title element '#{name}' has Yomi attributes, but no 'ja' title: #{langs.join(", ")}",
+               error_id: :xmllang_nojapanese_with_yomi,
+               identifier: identifier,
+            }
+         end
       end
-
+      #3. 作成者
+      type = metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").first
+      resource_uri = type.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").to_s
+      creators = metadata.find("./jpcoar:creaor", "jpcoar:#{NAMESPACES[:jpcoar]}")
+      if resource_uri =~ %r!http://purl.org/coar/resource_type/(c_46ec|c_7a1f|c_bdcc|c_db06)! and creators.empty?
+         result[:error] << {
+            error_id: :no_creator_in_thesis,
+            message: "Elements 'jpcoar:cerator' is not available.",
+            identifier: identifier,
+         }
+      end
       #3.1 作成者識別子
       metadata.find(".//jpcoar:nameIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name_identifier|
          content = name_identifier.content
