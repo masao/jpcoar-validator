@@ -18,11 +18,29 @@ RSpec.describe JPCOARValidator do
       results = validator.validate_jpcoar(doc)
       expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resouce)
     end
+    it "should validate embagoed access without Available date." do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/05_accessRights_embergoed.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:error].map{|e| e[:error_id]}).to include(:embargoed_access_no_available_date)
+    end
     it "should validate name comma" do
       validator = JPCOARValidator.new("")
       doc = LibXML::XML::Document.file("schema/2.0/samples/14_common_metadata_elements_cao.xml")
       results = validator.validate_jpcoar(doc)
       expect(results[:warn].map{|e| e[:error_id]}).not_to include(:no_comma_creator)
+    end
+    it "should validate identifier & identifierRegistration" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/18_identifierRegistration_mismatch.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_registration_doi_mismatch)
+    end
+    it "should validate funderName availability" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/23-2_funderName_not_available.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:error].map{|e| e[:error_id]}).to include(:funder_name_not_available)
     end
   end
 end

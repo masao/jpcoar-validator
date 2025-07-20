@@ -239,13 +239,14 @@ class JPCOARValidator
       begin
          metadata.validate_schema( @xml_schema )
       rescue LibXML::XML::Error => err
-         # err.message
          error_id =
             case err.message
             when /is not a valid value of the atomic type 'xs:positiveInteger'/
                :positiveInteger
             when /sourceIdentifier', attribute 'identifierType': \[facet 'enumeration'\] The value '(.*?)' is not an element of the set/
                :soueceIdentifierVocab
+            when %r|Expected is \( {https://github.com/JPCOAR/schema/blob/master/2.0/}funderName \)|
+               :funder_name_not_available
             #when /No matching global declaration available for the validation root/
             #   :wrong_root_element
             #when /This element is not expected. Expected is (one of )?\( .* \)/
@@ -414,6 +415,17 @@ class JPCOARValidator
                message: "Element 'dcterms:accessRights' needs @rdf:resource attribute: #{e.content}",
                identifier: identifier,
             }
+         elsif resource_uri.value == "http://purl.org/coar/access_right/c_f1cf"
+            date_types = metadata.find("./datacite:date", "datacite:#{NAMESPACES[:datacite]}").map do |date_element|
+               date_element.attributes["dateType"]
+            end
+            if not date_types.include? "Available"
+               result[:error] << {
+                  error_id: :embargoed_access_no_available_date,
+                  message: "Element 'dcterms:accessRights' is 'embagoed access', but Element 'datacite:date' @dateType='Available' not found.",
+                  identifier: identifier,
+               }
+            end
          end
       end
       #10. 出版者, 11-1. 出版者名
@@ -529,6 +541,21 @@ class JPCOARValidator
                   message: "Element '#{identifier_name}' format mismatch: #{identifier_type.to_s} - #{e.content}"
                }
             end
+         end
+      end
+      #19. ID登録
+      metadata.find("jpcoar:identifierRegistration", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+         registration_id = e.content
+         dois = metadata.find("jpcoar:identifierRegistration", "jpcoar:#{NAMESPACES[:jpcoar]}").select do |identifier_elem|
+            identifier_elem.attributes["identifierType"].to_s == "DOI"
+         end.map do |identifier_elem|
+            doi_str = identifier_elem.content.strip.sub(%r|\Ahttps://doi.org/|, "")
+         end
+         if not dois.include? registration_id
+            result[:warn] << {
+               error_id: :identifier_registration_doi_mismatch,
+               message: "Elements 'identifierRegistration' does not included in 'identifier': #{registration_id} - #{dois.inspect}"
+            }
          end
       end
       #20-1. 関連情報識別子
