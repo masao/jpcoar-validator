@@ -287,7 +287,7 @@ class JPCOARValidator
       #3. 作成者
       type = metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").first
       resource_uri = type.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").to_s
-      creators = metadata.find("./jpcoar:creaor", "jpcoar:#{NAMESPACES[:jpcoar]}")
+      creators = metadata.find("./jpcoar:creator", "jpcoar:#{NAMESPACES[:jpcoar]}")
       if resource_uri =~ %r!http://purl.org/coar/resource_type/(c_46ec|c_7a1f|c_bdcc|c_db06)! and creators.empty?
          result[:error] << {
             error_id: :no_creator_in_thesis,

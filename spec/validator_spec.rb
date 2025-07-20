@@ -23,6 +23,7 @@ RSpec.describe JPCOARValidator do
         expect {
           results = validator.validate_jpcoar(doc)
           p [file, results]
+          expect(results[:error]).to be_empty
         }.not_to raise_error
       end
     end
