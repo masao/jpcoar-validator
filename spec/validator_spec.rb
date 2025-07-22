@@ -4,13 +4,35 @@ RSpec.describe JPCOARValidator do
     it "should load a XML file and validate it." do
       validator = JPCOARValidator.new("")
       Dir.glob("schema/2.0/samples/*.xml").each do |file|
+        results = nil
         doc = LibXML::XML::Document.file(file)
-        expect {
-          results = validator.validate_jpcoar(doc)
+        if file =~ /08_conference_object.xml\z/
+          # skip
+          #pending("Fix PR JPCOAR/schema#3")
+          #expect {
+          #  results = validator.validate_jpcoar(doc)
+          #  p [file, results]
+          #  expect(results[:error]).to be_empty
+          #}.not_to raise_error
+        else
+          expect {
+            results = validator.validate_jpcoar(doc)
+          }.not_to raise_error
           p [file, results]
           expect(results[:error]).to be_empty
-        }.not_to raise_error
+        end
       end
+    end
+    it "should load a XML file and validate it.", pending: "Fix PR JPCOAR/schema#3" do
+      validator = JPCOARValidator.new("")
+      file = "schema/2.0/samples/08_conference_object.xml"
+      doc = LibXML::XML::Document.file(file)
+      results = nil
+      expect {
+        results = validator.validate_jpcoar(doc)
+      }.not_to raise_error
+      p [file, results]
+      expect(results[:error]).to be_empty
     end
     it "should validate the presence of accessRights@rdf:resource." do
       validator = JPCOARValidator.new("")
