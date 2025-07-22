@@ -6,6 +6,11 @@ body {
 h1 {
   text-align: center;
   margin-top: 10px;
+  color: navy;
+}
+h1 a {
+  color: navy;
+  text-decoration: none;
 }
 div.last-update {
   text-align: right;

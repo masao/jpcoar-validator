@@ -33,7 +33,13 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 <% end %>
 >
 <div class="last-update">最終更新日: <%= last_modified.strftime '%Y年%m月%d日' %></div>
-<h1>JPCOAR Validator</h1>
+<h1>
+<% if @data %>
+<a href="/">JPCOAR Validator</a>
+<% else %>
+JPCOAR Validator
+<% end %>
+</h1>
 <div id="tabs">
 <ul>
 <li><a href="#tabs-1">Validate by baseURL</a></li>
