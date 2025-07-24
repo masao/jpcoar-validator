@@ -279,23 +279,67 @@ class JPCOARValidator
 
       #1. タイトル
       #2. その他のタイトル
+      %w[
+         dc:title
+         dcterms:alternative
+         jpcoar:creator/jpcoar:creatorName
+         jpcoar:creator/jpcoar:familyName
+         jpcoar:creator/jpcoar:givenName
+         jpcoar:creator/jpcoar:creatorAlternative
+         jpcoar:creator/jpcoar:affiliation/jpcoar:affiliationName
+         jpcoar:contributor/jpcoar:contributorName
+         jpcoar:contributor/jpcoar:familyName
+         jpcoar:contributor/jpcoar:givenName
+         jpcoar:contributor/jpcoar:contributorAlternative
+         jpcoar:contributor/jpcoar:affiliation/jpcoar:affiliationName
+         dc:rights
+         jpcoar:rightsHolder/jpcoar:rightsHolderName
+         datacite:description
+         dc:publisher
+         jpcoar:publisher/jpcoar:publisherName
+         jpcoar:publisher/jpcoar:publisherDescription
+         jpcoar:publisher/dcndl:location
+         dcterms:date
+         jpcoar:relation/jpcoar:relatedTitle
+         jpcoar:fundingReference/jpcoar:funderName
+         jpcoar:fundingReference/jpcoar:fundingStream
+         jpcoar:fundingReference/jpcoar:awardTitle
+         jpcoar:sourceTitle
+         dcndl:degreeName
+         jpcoar:degreeGrantor/jpcoar:degreeGrantorName
+         jpcoar:conference/jpcoar:conferenceName
+         jpcoar:conference/jpcoar:conferenceSponsor
+         jpcoar:conference/jpcoar:conferenceDate
+         jpcoar:conference/jpcoar:conferenceVenue
+         jpcoar:conference/jpcoar:conferencePlace
+         dcndl:edition
+         dcndl:volumeTitle
+         dcterms:extent
+         jpcoar:format
+         jpcoar:holdingAgent/jpcoar:holdingAgentName
+         jpcoar:catalog/jpcoar:contributor/jpcoar:contributorName
+         jpcoar:catalog/jpcoar:license
+         jpcoar:catalog/jpcoar:subject
+         jpcoar:catalog/datacite:description
+         jpcoar:catalog/dc:rights
+      ].each do |elem_name|
+         metadata.find("./#{elem_name}", NAMESPACES).each do |e|
+            if xml_lang(e).nil?
+               result[:error] << {
+                  message: "Elements #{elem_name} needs a 'xml:lang' attribute.",
+                  error_id: :xmllang_not_found,
+                  identifier: identifier,
+               }
+            end
+         end
+      end
       { "dc:title" => NAMESPACES[:dc],
-        "dcterms:alternative" => NAMESPACES[:dc],
       }.each do |name, ns_uri|
          ns, = name.partition(":")
          title_elem = metadata.find("./#{name}", "#{ns}:#{ns_uri}")
          langs = []
          title_elem.each do |e|
-            lang = xml_lang(e)
-            if lang.nil?
-               result[:error] << {
-                  message: "Elements #{name} needs a 'xml:lang' attribute.",
-                  error_id: :xmllang_not_found,
-                  identifier: identifier,
-               }
-            else
-               langs << lang
-            end
+            langs << xml_lang(e) if xml_lang(e)
          end
          if langs.uniq.length != langs.length
             result[:error] << {
@@ -373,24 +417,12 @@ class JPCOARValidator
                   identifier: identifier,
                }
             end
-            if xml_lang(name_elem).nil?
-               result[:warn] << {
-                  message: "#{name} element needs a 'xml:lang' attribute.",
-                  error_id: :xmllang_not_found,
-                  identifier: identifier,
-               }
-            end
          end
       end
       #3.3 作成者姓, 3.4 作成者名
       ["jpcoar:familyName", "jpcoar:givenName"].each do |elem_name|
          metadata.find("./#{elem_name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
             if xml_lang(e).nil?
-               result[:warn] << {
-                  message: "#{elem_name} element needs a 'xml:lang' attribute.",
-                  error_id: :xmllang_not_found,
-                  identifier: identifier,
-               }
             elsif xml_lang(e) =~ /\Aja-.*/
                result[:warn] << {
                   message: "#{elem_name} element should not include any Yomi: #{e.content}",
@@ -438,11 +470,6 @@ class JPCOARValidator
       metadata.find("./dc:publisher", "dc:#{NAMESPACES[:dc]}").each do |e|
          lang = xml_lang(e)
          if lang.nil?
-            result[:warn] << {
-                  message: "Elements 'dc:publisher' needs a 'xml:lang' attribute.",
-                  error_id: :xmllang_not_found,
-                  identifier: identifier,
-            }
          else
             langs << lang
          end
@@ -471,11 +498,6 @@ class JPCOARValidator
          e.find(".//jpcoar:publisherName", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name|
             lang = xml_lang(name)
             if lang.nil?
-               result[:warn] << {
-                  message: "Elements 'jpcoar:publisherName' needs a 'xml:lang' attribute: #{name.to_s}",
-                  error_id: :xmllang_not_found,
-                  identifier: identifier,
-               }
             else
                langs << lang
             end
@@ -674,11 +696,6 @@ class JPCOARValidator
       elements.each do |e|
          lang = xml_lang(e)
          if lang.nil?
-            result[:warn] << {
-               message: "Elements #{name} needs a 'xml:lang' attribute.",
-               error_id: :xmllang_not_found,
-               identifier: identifier,
-            }
          else
             langs << lang
          end
