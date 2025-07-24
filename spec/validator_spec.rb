@@ -131,5 +131,18 @@ RSpec.describe JPCOARValidator do
         #p results
       end
     end
+    it "should check positiveInteger errors" do
+      validator = JPCOARValidator.new("")
+      files = %w[
+        28_numPages/positive_integer.xml
+        29_pageStart/positive_integer.xml
+        30_pageEnd/positive_integer.xml
+        35_conference/conference_sequence_positive_integer.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        expect(results[:error].map{|e| e[:error_id]}).to include(:positiveInteger)
+      end
+    end
   end
 end
