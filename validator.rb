@@ -351,7 +351,7 @@ class JPCOARValidator
       title_langs = xml_langs(metadata, "dc:title")
       if (title_langs.include?("ja-Latn") or title_langs.include?("ja-Kana")) and not title_langs.include?("ja")
          result[:error] << {
-            message: "Title element '#{name}' has Yomi attributes, but no 'ja' title: #{langs.join(", ")}",
+            message: "Title element 'dc:title' has Yomi attributes, but no 'ja' title: #{title_langs.join(", ")}",
             error_id: :xmllang_nojapanese_with_yomi,
             identifier: identifier,
          }
@@ -786,9 +786,9 @@ class JPCOARValidator
    def xml_lang_duplicated?(metadata, element_name)
       langs = xml_langs(metadata, element_name)
       if langs.uniq.length != langs.length
-         false
-      else
          true
+      else
+         false
       end
    end
 
