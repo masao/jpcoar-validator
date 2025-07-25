@@ -160,5 +160,11 @@ RSpec.describe JPCOARValidator do
         expect(results[:error].map{|e| e[:error_id]}).to include(:positiveInteger)
       end
     end
+    it "should check sourceIdentifierVocab" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/24_sourceIdentifier/01_departmental_bulletin_paper_oa.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:error].map{|e| e[:error_id]}).to include(:sourceIdentifierVocab)
+    end
   end
 end

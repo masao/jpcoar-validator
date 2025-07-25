@@ -249,7 +249,7 @@ class JPCOARValidator
             when /is not a valid value of the atomic type 'xs:positiveInteger'/
                :positiveInteger
             when /sourceIdentifier', attribute 'identifierType': \[facet 'enumeration'\] The value '(.*?)' is not an element of the set/
-               :soueceIdentifierVocab
+               :sourceIdentifierVocab
             when %r|Expected is \( {https://github.com/JPCOAR/schema/blob/master/2.0/}funderName \)|
                :funder_name_not_available
             #when /No matching global declaration available for the validation root/
