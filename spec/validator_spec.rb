@@ -213,5 +213,24 @@ RSpec.describe JPCOARValidator do
       results = validator.validate_jpcoar(doc)
       expect(results[:error].map{|e| e[:error_id]}).to include(:sourceIdentifierVocab)
     end
+    it "should check no_creator_in_thesis" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/3_creator/no_creator_in_thesis.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:error].map{|e| e[:error_id]}).to include(:no_creator_in_thesis)
+    end
+    it "should check nameidentifier_content_is_uri" do
+      validator = JPCOARValidator.new("")
+      files = %w[
+        28_numPages/positive_integer.xml
+        29_pageStart/positive_integer.xml
+        30_pageEnd/positive_integer.xml
+        35_conference/conference_sequence_positive_integer.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        expect(results[:error].map{|e| e[:error_id]}).to include(:positiveInteger)
+      end
+    end
   end
 end

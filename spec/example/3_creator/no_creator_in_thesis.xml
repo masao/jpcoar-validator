@@ -12,17 +12,6 @@
     <dc:title xml:lang="en">Acoustical Investigation of the Japanese Bamboo Pipe，Syakuhati</dc:title>
     <dc:title xml:lang="ja">日本の竹製管楽器、尺八の音響学的研究</dc:title>
     <dc:title xml:lang="ja-Kana">二ホン ノ チクセイ カンガッキ シャクハチ ノ オンキョウテキ ケンキュウ</dc:title>
-    <jpcoar:creator creatorType="著">
-        <jpcoar:nameIdentifier nameIdentifierScheme="ORCID" nameIdentifierURI="https://orcid.org/0000-0001-0001-0001">0000-0001-0001-0001</jpcoar:nameIdentifier>
-        <jpcoar:creatorName xml:lang="ja">寺田, 寅彦</jpcoar:creatorName>
-        <jpcoar:creatorName xml:lang="en">Terada, Torahiko</jpcoar:creatorName>
-        <jpcoar:creatorName xml:lang="ja-Kana">テラダ, トラヒコ</jpcoar:creatorName>
-        <jpcoar:affiliation>
-            <jpcoar:nameIdentifier nameIdentifierScheme="ISNI" nameIdentifierURI="http://www.isni.org/isni/0000000121691048">0000000121691048</jpcoar:nameIdentifier>
-            <jpcoar:affiliationName xml:lang="ja">東京大学</jpcoar:affiliationName>
-            <jpcoar:affiliationName xml:lang="en">The University of Tokyo</jpcoar:affiliationName>
-        </jpcoar:affiliation>
-    </jpcoar:creator>
     <!-- 指導教員（学位審査員） / Supervisor -->
     
     <jpcoar:contributor contributorType="Supervisor">
