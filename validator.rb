@@ -333,28 +333,28 @@ class JPCOARValidator
             end
          end
       end
-      { "dc:title" => NAMESPACES[:dc],
-      }.each do |name, ns_uri|
-         ns, = name.partition(":")
-         title_elem = metadata.find("./#{name}", "#{ns}:#{ns_uri}")
-         langs = []
-         title_elem.each do |e|
-            langs << xml_lang(e) if xml_lang(e)
-         end
-         if langs.uniq.length != langs.length
+      %w[
+         dc:title
+         jpcoar:creator/jpcoar:creatorName
+         jpcoar:creator/jpcoar:familyName
+         jpcoar:creator/jpcoar:givenName
+      ].each do |elem_name|
+         if xml_lang_duplicated?(metadata, elem_name)
+            langs = xml_langs(metadata, elem_name)
             result[:error] << {
-               message: "Title element '#{name}': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
+               message: "Element '#{elem_name}': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
                error_id: :xmllang_duplicated,
                identifier: identifier,
             }
          end
-         if (langs.include?("ja-Latn") or langs.include?("ja-Kana")) and not langs.include?("ja")
-            result[:error] << {
-               message: "Title element '#{name}' has Yomi attributes, but no 'ja' title: #{langs.join(", ")}",
-               error_id: :xmllang_nojapanese_with_yomi,
-               identifier: identifier,
-            }
-         end
+      end
+      title_langs = xml_langs(metadata, "dc:title")
+      if (title_langs.include?("ja-Latn") or title_langs.include?("ja-Kana")) and not title_langs.include?("ja")
+         result[:error] << {
+            message: "Title element '#{name}' has Yomi attributes, but no 'ja' title: #{langs.join(", ")}",
+            error_id: :xmllang_nojapanese_with_yomi,
+            identifier: identifier,
+         }
       end
       #3. 作成者
       type = metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").first
@@ -768,12 +768,28 @@ class JPCOARValidator
       result
    end
 
-   def validate_metadata(metadata)
-      result = {
-         :warn => [],
-         :error=> [],
-         :info => [],
-      }
+   def xml_lang(element)
+      lang = element.attributes.get_attribute_ns("http://www.w3.org/XML/1998/namespace", "lang")
+      if lang.nil?
+         nil
+      else
+         lang.value
+      end
+   end
+   def xml_langs(metadata, element_name)
+      langs = []
+      metadata.find(element_name, NAMESPACES).each do |e|
+         langs << xml_lang(e) if xml_lang(e)
+      end
+      langs
+   end
+   def xml_lang_duplicated?(metadata, element_name)
+      langs = xml_langs(metadata, element_name)
+      if langs.uniq.length != langs.length
+         false
+      else
+         true
+      end
    end
 
    private
@@ -790,15 +806,6 @@ class JPCOARValidator
       http.open_timeout = 30
       http.read_timeout = 30
       http
-   end
-
-   def xml_lang(element)
-      lang = element.attributes.get_attribute_ns("http://www.w3.org/XML/1998/namespace", "lang")
-      if lang.nil?
-         nil
-      else
-         lang.value
-      end
    end
 end
 

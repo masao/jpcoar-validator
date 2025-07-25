@@ -147,6 +147,19 @@ RSpec.describe JPCOARValidator do
         #p results
       end
     end
+    it "check duplicated xml:lang values" do
+      validator = JPCOARValidator.new("")
+      %w[
+        1_title/xmllang_duplicated.xml
+        3_creator/family_name_xmllang_duplicated.xml
+        3_creator/given_name_xmllang_duplicated.xml
+      ].each do |file|
+        p file
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        expect(results[:error].map{|e| e[:error_id]}).to include(:xmllang_duplicated)
+      end
+    end
     it "should check positiveInteger errors" do
       validator = JPCOARValidator.new("")
       files = %w[
