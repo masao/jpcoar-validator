@@ -571,17 +571,18 @@ class JPCOARValidator
          end
       end
       #19. ID登録
-      metadata.find("jpcoar:identifierRegistration", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+      metadata.find("./jpcoar:identifierRegistration", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
          registration_id = e.content
-         dois = metadata.find("jpcoar:identifierRegistration", "jpcoar:#{NAMESPACES[:jpcoar]}").select do |identifier_elem|
+         dois = metadata.find("./jpcoar:identifier", "jpcoar:#{NAMESPACES[:jpcoar]}").select do |identifier_elem|
             identifier_elem.attributes["identifierType"].to_s == "DOI"
          end.map do |identifier_elem|
-            doi_str = identifier_elem.content.strip.sub(%r|\Ahttps://doi.org/|, "")
+            doi_str = identifier_elem.content.strip.sub(%r|\Ahttps://doi\.org/|, "")
          end
          if not dois.include? registration_id
             result[:warn] << {
                error_id: :identifier_registration_doi_mismatch,
-               message: "Elements 'identifierRegistration' does not included in 'identifier': #{registration_id} - #{dois.inspect}"
+               message: "Elements 'identifierRegistration' does not included in 'identifier': #{registration_id} - #{dois.inspect}",
+               identfitier: identifier,
             }
          end
       end
