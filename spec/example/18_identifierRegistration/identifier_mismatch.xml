@@ -37,7 +37,7 @@
     <!-- 出版者版 / Version of Record -->
     <oaire:version rdf:resource="http://purl.org/coar/version/c_970fb48d4fbd8a85">VoR</oaire:version>
     <!-- 識別子にURI形式でDOIを記入 / Input the DOI name of the content in HTTP URI syntax -->
-    <jpcoar:identifier identifierType="DOI">https://doi.org/10.15017/64495</jpcoar:identifier>
+    <jpcoar:identifier identifierType="DOI">https://doi.org/10.15017/64495XX</jpcoar:identifier>
     <jpcoar:identifier identifierType="HDL">http://hdl.handle.net/2115/64495</jpcoar:identifier>
     <!-- JaLC DOIを登録する場合は、ID登録にDOIをprefix/suffixの形式で記入 / Input a DOI name in prefix/suffix syntax for DOI registration -->
     <jpcoar:identifierRegistration identifierType="JaLC">10.15017/64495</jpcoar:identifierRegistration>

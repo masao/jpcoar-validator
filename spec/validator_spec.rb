@@ -16,6 +16,11 @@ RSpec.describe JPCOARValidator do
           }.not_to raise_error
           p [file, results]
           expect(results[:error]).to be_empty
+          results[:warn].each do |warn|
+            expect(warn).to have_key :identifier
+            expect(warn).to have_key :message
+            expect(warn).to have_key :error_id
+          end
         end
       end
     end
