@@ -352,7 +352,8 @@ class JPCOARValidator
          ["jpcoar:conference", "jpcoar:conferenceSponsor"],
          ["jpcoar:conference", "jpcoar:conferenceVenue"],
          ["jpcoar:conference", "jpcoar:conferencePlace"],
-         ["jpcoar:holdingAgent", "jpcoar:holdingAgentName"]
+         ["jpcoar:holdingAgent", "jpcoar:holdingAgentName"],
+         ["jpcoar:catalog", "dc:title"],
       ].each do |e|
          if e.respond_to? :last
             metadata.find("./#{e.first}", NAMESPACES).each do |elem|

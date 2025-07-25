@@ -168,8 +168,9 @@ RSpec.describe JPCOARValidator do
         35_conference/conference_venue_xmllang_duplicated.xml
         35_conference/conference_place_xmllang_duplicated.xml
         41_holdingAgent/holding_agent_name_xmllang_duplicated.xml
+        44_catalog/title_xmllang_duplicated.xml
       ].each do |file|
-        p file
+        #p file
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
         expect(results[:error].map{|e| e[:error_id]}).to include(:xmllang_duplicated)
