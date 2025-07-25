@@ -137,6 +137,13 @@ RSpec.describe JPCOARValidator do
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
         expect(results[:error].map{|e| e[:error_id]}).to include(:xmllang_not_found)
+        results.each do |error_type, data|
+          data.each do |e|
+            expect(e).to have_key :identifier
+            expect(e).to have_key :message
+            expect(e).to have_key :error_id
+          end
+        end
         #p results
       end
     end
