@@ -176,6 +176,24 @@ RSpec.describe JPCOARValidator do
         expect(results[:error].map{|e| e[:error_id]}).to include(:xmllang_duplicated)
       end
     end
+    it "should check yomi without 'ja'" do
+      validator = JPCOARValidator.new("")
+      %w[
+        1_title/xmllang_noja_with_yomi.xml
+        3_creator/creator_name_noja_with_yomi.xml
+        3_creator/creator_alternative_noja_with_yomi.xml
+        4_contributor/contributor_name_noja_with_yomi.xml
+        4_contributor/contributor_alternative_noja_with_yomi.xml
+        7_rightsHolder/rights_holder_name_noja_with_yomi.xml
+        44_catalog/title_noja_with_yomi.xml
+      ].each do |file|
+        #p file
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p results
+        expect(results[:error].map{|e| e[:error_id]}).to include(:xmllang_nojapanese_with_yomi)
+      end
+    end
     it "should check positiveInteger errors" do
       validator = JPCOARValidator.new("")
       files = %w[

@@ -377,13 +377,36 @@ class JPCOARValidator
             end
          end
       end
-      title_langs = xml_langs(metadata, "dc:title")
-      if (title_langs.include?("ja-Latn") or title_langs.include?("ja-Kana")) and not title_langs.include?("ja")
-         result[:error] << {
-            message: "Title element 'dc:title' has Yomi attributes, but no 'ja' title: #{title_langs.join(", ")}",
-            error_id: :xmllang_nojapanese_with_yomi,
-            identifier: identifier,
-         }
+      [
+         "dc:title",
+         ["jpcoar:creator", "jpcoar:creatorName"],
+         ["jpcoar:creator", "jpcoar:creatorAlternative"],
+         ["jpcoar:contributor", "jpcoar:contributorName"],
+         ["jpcoar:contributor", "jpcoar:contributorAlternative"],
+         ["jpcoar:rightsHolder", "jpcoar:rightsHolderName"],
+         ["jpcoar:catalog", "dc:title"],
+      ].each do |e|
+         if e.respond_to? :last
+            metadata.find("./#{e.first}", NAMESPACES).each do |elem|
+               langs = xml_langs(elem, e.last)
+               if (langs.include?("ja-Latn") or langs.include?("ja-Kana")) and not langs.include?("ja")
+                  result[:error] << {
+                     message: "Element '#{e.join("/")}' has Yomi attributes, but no 'ja' title: #{langs.join(", ")}",
+                     error_id: :xmllang_nojapanese_with_yomi,
+                     identifier: identifier,
+                  }
+               end
+            end
+         else
+            langs = xml_langs(metadata, e)
+            if (langs.include?("ja-Latn") or langs.include?("ja-Kana")) and not langs.include?("ja")
+               result[:error] << {
+                  message: "Element '#{e}' has Yomi attributes, but no 'ja' title: #{langs.join(", ")}",
+                  error_id: :xmllang_nojapanese_with_yomi,
+                  identifier: identifier,
+               }
+            end
+         end
       end
       #3. 作成者
       type = metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").first
