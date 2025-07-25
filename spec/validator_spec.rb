@@ -153,6 +153,21 @@ RSpec.describe JPCOARValidator do
         1_title/xmllang_duplicated.xml
         3_creator/family_name_xmllang_duplicated.xml
         3_creator/given_name_xmllang_duplicated.xml
+        4_contributor/contributor_name_xmllang_duplicated.xml
+        4_contributor/family_name_xmllang_duplicated.xml
+        4_contributor/given_name_xmllang_duplicated.xml
+        4_contributor/affiliation_name_xmllang_duplicated.xml
+        20_relation/related_title_xmllang_duplicated.xml
+        23_fundingReference/funder_name_xmllang_duplicated.xml
+        23_fundingReference/award_title_xmllang_duplicated.xml
+        25_sourceTitle/xmllang_duplicated.xml
+        32_degreeName/xmllang_duplicated.xml
+        34_degreeGrantor/degree_grantor_name_xmllang_duplicated.xml
+        35_conference/conference_name_xmllang_duplicated.xml
+        35_conference/conference_sponsor_xmllang_duplicated.xml
+        35_conference/conference_venue_xmllang_duplicated.xml
+        35_conference/conference_place_xmllang_duplicated.xml
+        41_holdingAgent/holding_agent_name_xmllang_duplicated.xml
       ].each do |file|
         p file
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))

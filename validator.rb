@@ -333,19 +333,47 @@ class JPCOARValidator
             end
          end
       end
-      %w[
-         dc:title
-         jpcoar:creator/jpcoar:creatorName
-         jpcoar:creator/jpcoar:familyName
-         jpcoar:creator/jpcoar:givenName
-      ].each do |elem_name|
-         if xml_lang_duplicated?(metadata, elem_name)
-            langs = xml_langs(metadata, elem_name)
-            result[:error] << {
-               message: "Element '#{elem_name}': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
-               error_id: :xmllang_duplicated,
-               identifier: identifier,
-            }
+      [
+         "dc:title",
+         ["jpcoar:creator", "jpcoar:creatorName"],
+         ["jpcoar:creator", "jpcoar:familyName"],
+         ["jpcoar:creator", "jpcoar:givenName"],
+         ["jpcoar:contributor", "jpcoar:contributorName"],
+         ["jpcoar:contributor", "jpcoar:familyName"],
+         ["jpcoar:contributor", "jpcoar:givenName"],
+         ["jpcoar:contributor/jpcoar:affiliation", "jpcoar:affiliationName"],
+         ["jpcoar:relation", "jpcoar:relatedTitle"],
+         ["jpcoar:fundingReference", "jpcoar:funderName"],
+         ["jpcoar:fundingReference", "jpcoar:awardTitle"],
+         "jpcoar:sourceTitle",
+         "dcndl:degreeName",
+         ["jpcoar:degreeGrantor", "jpcoar:degreeGrantorName"],
+         ["jpcoar:conference", "jpcoar:conferenceName"],
+         ["jpcoar:conference", "jpcoar:conferenceSponsor"],
+         ["jpcoar:conference", "jpcoar:conferenceVenue"],
+         ["jpcoar:conference", "jpcoar:conferencePlace"],
+         ["jpcoar:holdingAgent", "jpcoar:holdingAgentName"]
+      ].each do |e|
+         if e.respond_to? :last
+            metadata.find("./#{e.first}", NAMESPACES).each do |elem|
+               if xml_lang_duplicated?(elem, e.last)
+                  langs = xml_langs(elem, e.last)
+                  result[:error] << {
+                     message: "Element '#{e.join("/")}': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
+                     error_id: :xmllang_duplicated,
+                     identifier: identifier,
+                  }
+               end
+            end
+         else
+            if xml_lang_duplicated?(metadata, e)
+               langs = xml_langs(metadata, e)
+               result[:error] << {
+                  message: "Element '#{e}': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
+                  error_id: :xmllang_duplicated,
+                  identifier: identifier,
+               }
+            end
          end
       end
       title_langs = xml_langs(metadata, "dc:title")
@@ -465,22 +493,6 @@ class JPCOARValidator
             end
          end
       end
-      #10. 出版者, 11-1. 出版者名
-      langs = []
-      metadata.find("./dc:publisher", "dc:#{NAMESPACES[:dc]}").each do |e|
-         lang = xml_lang(e)
-         if lang.nil?
-         else
-            langs << lang
-         end
-         if langs.uniq.length != langs.length
-            result[:warn] << {
-               message: "Element 'dc:publisher': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
-               error_id: :xmllang_duplicated,
-               identifier: identifier,
-            }
-         end
-      end
       #11. 出版者
       metadata.find("./jpcoar:publisher", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
          name = e.find(".//jpcoar:publisherName", "jpcoar:#{NAMESPACES[:jpcoar]}").first
@@ -491,21 +503,6 @@ class JPCOARValidator
             result[:warn] << {
                error_id: :publisher_name_not_found,
                message: "Element 'jpcoar:publisherName' not found: #{e.to_s}",
-               identifier: identifier,
-            }
-         end
-         langs = []
-         e.find(".//jpcoar:publisherName", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name|
-            lang = xml_lang(name)
-            if lang.nil?
-            else
-               langs << lang
-            end
-         end
-         if langs.uniq.length != langs.length
-            result[:warn] << {
-               message: "Element 'jpcoar:publisherName': 'xml:lang' attributes duplicated: #{langs.join(", ")}",
-               error_id: :xmllang_duplicated,
                identifier: identifier,
             }
          end
@@ -778,7 +775,7 @@ class JPCOARValidator
    end
    def xml_langs(metadata, element_name)
       langs = []
-      metadata.find(element_name, NAMESPACES).each do |e|
+      metadata.find("./#{element_name}", NAMESPACES).each do |e|
          langs << xml_lang(e) if xml_lang(e)
       end
       langs
