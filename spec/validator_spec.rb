@@ -74,6 +74,10 @@ RSpec.describe JPCOARValidator do
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/18_identifierRegistration/identifier_mismatch.xml"))
       results = validator.validate_jpcoar(doc)
       expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_registration_doi_mismatch)
+
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/18_identifierRegistration/identifier_mismatch_without_identifier.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_registration_doi_mismatch)
     end
     it "should validate funderName availability" do
       validator = JPCOARValidator.new("")
