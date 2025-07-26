@@ -386,8 +386,19 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:error].map{|e| e[:error_id]}).to include(:identifier_type_mismatch)
+      end
+    end
+    it "should check identifier_type_pmid" do
+      validator = JPCOARValidator.new("")
+      %w[
+        19_identifierRegistration/identifier_type_pmid.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:identifier_type_pmid)
       end
     end
   end

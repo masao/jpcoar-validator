@@ -601,11 +601,11 @@ class JPCOARValidator
       ["jpcoar:identifier", "jpcoar:identifierRegistration"].each do |identifier_name|
          metadata.find("./#{identifier_name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
             identifier_type = e.attributes["identifierType"].to_s
-            if identifier == "PMID"
-               result[:warn] << {
+            if identifier_type == "PMID"
+               result[:error] << {
                   error_id: :identifier_type_pmid,
                   identifier: identifier,
-                  message: "Element '#{identifier_name}'@identifierType currently not supported: #{identifier_type} - #{e.content}"
+                  message: "Element '#{identifier_name}' @identifierType currently not supported: #{identifier_type} - #{e.content}"
                }
             elsif IDENTIFIER_REGEXP[identifier_type.to_sym] and not IDENTIFIER_REGEXP[identifier_type.to_sym].match(e.content)
                result[:error] << {
