@@ -286,9 +286,16 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:yomi_not_needed)
       end
+    end
+    it "should check contributor_type_not_found" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/4_contributor/contributor_type_not_found.xml"))
+      results = validator.validate_jpcoar(doc)
+      p results
+      expect(results[:warn].map{|e| e[:error_id]}).to include(:contributor_type_not_found)
     end
   end
 end
