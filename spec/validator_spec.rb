@@ -474,5 +474,27 @@ RSpec.describe JPCOARValidator do
         expect(results[:error].map{|e| e[:error_id]}).to include(:dissertation_details_not_found)
       end
     end
+    it "should check dissertation_number_format" do
+      validator = JPCOARValidator.new("")
+      %w[
+        31_dissertationNumber/dissertation_number_format.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:dissertation_number_format)
+      end
+    end
+    it "should check degree_name_english" do
+      validator = JPCOARValidator.new("")
+      %w[
+        32_degreeName/degree_name_english.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:degree_name_english)
+      end
+    end
   end
 end

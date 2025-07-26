@@ -725,8 +725,7 @@ class JPCOARValidator
          #p resource_uri
          if resource_uri == "http://purl.org/coar/resource_type/c_db06"
             ["dcndl:dissertationNumber", "dcndl:degreeName", "dcndl:dateGranted", "jpcoar:degreeGrantor"].each do |name|
-               prefix, = name.split(/:/)
-               elements = metadata.find(".//#{name}", "#{prefix}:#{NAMESPACES[prefix.to_sym]}")
+               elements = metadata.find(".//#{name}", NAMESPACES)
                if elements.empty?
                   result[:error] << {
                      error_id: :dissertation_details_not_found,
@@ -734,28 +733,21 @@ class JPCOARValidator
                      identifier: identifier,
                   }
                end
+               case name
+               when "dcndl:dissertationNumber"
+                  if not elements.first.content =~ /\A[甲乙他]第\d+号/
+                     result[:warn] << {
+                        error_id: :dissertation_number_format,
+                        message: "Element 'dcndl:dissertationNumber' format mismatch: #{elements.first.content}",
+                        identifier: identifier,
+                     }
+                  end
+               end
             end
          end
       end 
-      metadata.find("./dcndl:dissertationNumber", "dcndl:#{NAMESPACES[:dcndl]}").each do |e|
-         if e.content !~ /\A[甲乙他]第\d+号/
-            result[:warn] << {
-               error_id: :dissertation_number_format,
-               message: "Element 'dcndl:dissertationNumber' format mismatch: #{e.content}",
-               identifier: identifier,
-            }
-         end
-      end
       #29. 学位名
-      langs = []
-      elements = metadata.find("./dcndl:degreeName", "dcndl:#{NAMESPACES[:dcndl]}")
-      elements.each do |e|
-         lang = xml_lang(e)
-         if lang.nil?
-         else
-            langs << lang
-         end
-      end
+      langs = xml_langs(metadata, "dcndl:degreeName")
       if not langs.empty? and not langs.include?("en")
          result[:warn] << {
             error_id: :degree_name_english,
