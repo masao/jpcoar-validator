@@ -382,6 +382,7 @@ RSpec.describe JPCOARValidator do
         18_identifier/identifier_type_mismatch_doi.xml
         18_identifier/identifier_type_mismatch_hdl.xml
         18_identifier/identifier_type_mismatch_dois.xml
+        19_identifierRegistration/identifier_type_mismatch.xml
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
