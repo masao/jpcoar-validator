@@ -352,5 +352,17 @@ RSpec.describe JPCOARValidator do
         expect(results[:warn].map{|e| e[:error_id]}).to include(:format_iso3166_1)
       end
     end
+    it "should check format_version" do
+      validator = JPCOARValidator.new("")
+      %w[
+        16_version/format.xml
+        43_file/version_format.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:format_version)
+      end
+    end
   end
 end
