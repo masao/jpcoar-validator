@@ -222,15 +222,21 @@ RSpec.describe JPCOARValidator do
     it "should check nameidentifier_content_is_uri" do
       validator = JPCOARValidator.new("")
       files = %w[
-        28_numPages/positive_integer.xml
-        29_pageStart/positive_integer.xml
-        30_pageEnd/positive_integer.xml
-        35_conference/conference_sequence_positive_integer.xml
+        3_creator/name_identifier_content_is_uri_orcid.xml
+        3_creator/affiliation_name_identifier_content_is_uri_isni.xml
+        4_contributor/name_identifier_content_is_uri_orcid.xml
+        4_contributor/affiliation_name_identifier_content_is_uri_isni.xml
+        7_rightsHolder/name_identifier_content_is_uri_isni.xml
+        34_degreeGrantor/name_identifier_content_is_uri_kakenhi.xml
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        expect(results[:error].map{|e| e[:error_id]}).to include(:positiveInteger)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:nameidentifier_content_is_uri)
       end
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/3_creator/affiliation_name_identifier_content_is_uri_ror.xml"))
+      results = validator.validate_jpcoar(doc)
+      expect(results[:warn].map{|e| e[:error_id]}).not_to include(:nameidentifier_content_is_uri)
     end
   end
 end
