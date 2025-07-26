@@ -294,8 +294,30 @@ RSpec.describe JPCOARValidator do
       validator = JPCOARValidator.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/4_contributor/contributor_type_not_found.xml"))
       results = validator.validate_jpcoar(doc)
-      p results
+      #p results
       expect(results[:warn].map{|e| e[:error_id]}).to include(:contributor_type_not_found)
+    end
+    it "should check access_rights_without_rdf_resource" do
+      validator = JPCOARValidator.new("")
+      %w[
+        5_accessRights/access_rights_without_rdf_resource.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resource)
+      end
+    end
+    it "should check access_rights_wrong_uri" do
+      validator = JPCOARValidator.new("")
+      %w[
+        5_accessRights/access_rights_wrong_url.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_wrong_uri)
+      end
     end
   end
 end

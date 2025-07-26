@@ -83,6 +83,12 @@ class JPCOARValidator
       :isbn     => /\A[0-9]+[0-9\-]*[0-9X]\Z/oi,
       :NCID     => /\A(AA|AN|BN|BA|BB)[0-9]{7,8}[0-9X]?/o,
    }
+   ACCESS_RIGHTS_RESOURCES = %w[
+      http://purl.org/coar/access_right/c_f1cf
+      http://purl.org/coar/access_right/c_14cb
+      http://purl.org/coar/access_right/c_abf2
+      http://purl.org/coar/access_right/c_16ec
+   ]
 
    attr_reader :baseurl, :prefix
    def initialize( url )
@@ -502,8 +508,14 @@ class JPCOARValidator
          resource_uri = e.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource")
          if resource_uri.nil?
             result[:error] << {
-               error_id: :access_rights_without_rdf_resouce,
+               error_id: :access_rights_without_rdf_resource,
                message: "Element 'dcterms:accessRights' needs @rdf:resource attribute: #{e.content}",
+               identifier: identifier,
+            }
+         elsif not ACCESS_RIGHTS_RESOURCES.include? resource_uri.value
+            result[:error] << {
+               error_id: :access_rights_wrong_uri,
+               message: "Element 'dcterms:accessRights' has an invalid URI: #{resource_uri.value} - #{e.content}",
                identifier: identifier,
             }
          elsif resource_uri.value == "http://purl.org/coar/access_right/c_f1cf"
