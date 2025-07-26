@@ -71,11 +71,11 @@ RSpec.describe JPCOARValidator do
     end
     it "should validate identifier & identifierRegistration" do
       validator = JPCOARValidator.new("")
-      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/18_identifierRegistration/identifier_mismatch.xml"))
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/19_identifierRegistration/identifier_mismatch.xml"))
       results = validator.validate_jpcoar(doc)
       expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_registration_doi_mismatch)
 
-      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/18_identifierRegistration/identifier_mismatch_without_identifier.xml"))
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/19_identifierRegistration/identifier_mismatch_without_identifier.xml"))
       results = validator.validate_jpcoar(doc)
       expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_registration_doi_mismatch)
     end
@@ -374,6 +374,19 @@ RSpec.describe JPCOARValidator do
         results = validator.validate_jpcoar(doc)
         #p [file, results]
         expect(results[:error].map{|e| e[:error_id]}).to include(:coar_version_type_mismatch)
+      end
+    end
+    it "should check identifier_type_mismatch" do
+      validator = JPCOARValidator.new("")
+      %w[
+        18_identifier/identifier_type_mismatch_doi.xml
+        18_identifier/identifier_type_mismatch_hdl.xml
+        18_identifier/identifier_type_mismatch_dois.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:identifier_type_mismatch)
       end
     end
   end

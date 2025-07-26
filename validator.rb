@@ -261,6 +261,8 @@ class JPCOARValidator
                :funder_name_not_available
             when %r['{http://namespace.openaire.eu/schema/oaire/}version': [facet 'enumeration'] The value '.*' is not an element of the set {'AO', 'SMUR', 'AM', 'P', 'VoR', 'CVoR', 'EVoR', 'NA'}]
                :coar_version_type_mismatch
+            when %r[Element '{https://github.com/JPCOAR/schema/blob/master/2.0/}identifier', attribute 'identifierType': \[facet 'enumeration'\] The value '.*' is not an element of the set {'DOI', 'HDL', 'URI'}.]
+               :identifier_type_mismatch
             #when /No matching global declaration available for the validation root/
             #   :wrong_root_element
             #when /This element is not expected. Expected is (one of )?\( .* \)/
