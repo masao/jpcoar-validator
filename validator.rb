@@ -433,16 +433,18 @@ class JPCOARValidator
          end
          case scheme
          when "NRID", "kakenhi", "GRID"
-            result[:warn] << {
-               message: "nameIdentifierScheme value is obsolete: #{scheme}",
-               error_id: :nameIdentifierScheme_obsolete,
-               identifier: identifier,
-            }
+            if name_identifier.parent.name != "degreeGrantor"
+               result[:warn] << {
+                  message: "nameIdentifierScheme value is obsolete: #{scheme}",
+                  error_id: :nameIdentifierScheme_obsolete,
+                  identifier: identifier,
+               }
+            end
          end
          if NAME_IDENTIFIER_REGEXP[scheme.to_sym]
             if not NAME_IDENTIFIER_REGEXP[scheme.to_sym].match content
                result[:warn] << {
-                  message: "nameIdentifierScheme value is mismatch: #{scheme} - #{content}",
+                  message: "nameIdentifier value is mismatch: #{scheme} - #{content}",
                   error_id: :nameIdentifier_mismatch,
                   identifier: identifier,
                }

@@ -252,13 +252,30 @@ RSpec.describe JPCOARValidator do
         #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:nameIdentifierScheme_obsolete)
       end
+
+      doc = LibXML::XML::Document.file("schema/2.0/samples/05_doctoral_thesis_oa.xml")
+      results = validator.validate_jpcoar(doc)
+      #p results
+      expect(results[:warn].map{|e| e[:error_id]}).not_to include(:nameIdentifierScheme_obsolete)
     end
     it "should check degree_grantor_kakenhi_missing" do
       validator = JPCOARValidator.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/34_degreeGrantor/name_identifier_scheme_kakenhi_missing.xml"))
       results = validator.validate_jpcoar(doc)
-      p results
+      #p results
       expect(results[:warn].map{|e| e[:error_id]}).to include(:degree_grantor_kakenhi_missing)
+    end
+    it "should check name_identifier_mismatch" do
+      validator = JPCOARValidator.new("")
+      %w[
+        3_creator/name_identifier_mismatch_orcid.xml
+        3_creator/affiliation_name_identifier_mismatch_isni.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:nameIdentifier_mismatch)
+      end
     end
   end
 end
