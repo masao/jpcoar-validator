@@ -55,7 +55,7 @@ RSpec.describe JPCOARValidator do
       validator = JPCOARValidator.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/5_accessRights/rdf_resource.xml"))
       results = validator.validate_jpcoar(doc)
-      expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resouce)
+      expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resource)
     end
     it "should validate embagoed access without Available date." do
       validator = JPCOARValidator.new("")
