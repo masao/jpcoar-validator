@@ -732,41 +732,44 @@ class JPCOARValidator
                      message: "Element '#{name}' not found.",
                      identifier: identifier,
                   }
-               end
-               case name
-               when "dcndl:dissertationNumber"
-                  if not elements.first.content =~ /\A[甲乙他]第\d+号/
-                     result[:warn] << {
-                        error_id: :dissertation_number_format,
-                        message: "Element 'dcndl:dissertationNumber' format mismatch: #{elements.first.content}",
-                        identifier: identifier,
-                     }
+               else
+                  case name
+                  when "dcndl:dissertationNumber"
+                     if not elements.first.content =~ /\A[甲乙他]第\d+号/
+                        result[:warn] << {
+                           error_id: :dissertation_number_format,
+                           message: "Element 'dcndl:dissertationNumber' format mismatch: #{elements.first.content}",
+                           identifier: identifier,
+                        }
+                     end
+                  #29. 学位名
+                  when "dcndl:degreeName"
+                     langs = xml_langs(metadata, "dcndl:degreeName")
+                     if not langs.empty? and not langs.include?("en")
+                        result[:warn] << {
+                           error_id: :degree_name_english,
+                           message: "Element 'dcndl:degreename' does not include English name: #{langs.join(", ")}",
+                           identifier: identifier,
+                        }
+                     end
+                  #34. 学位授与機関
+                  when "jpcoar:degreeGrantor"
+                     elements.each do |grantor|
+                        grantor.find("jpcoar:nameIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |g|
+                           if not g.attributes["nameIdentifierScheme"] or g.attributes["nameIdentifierScheme"] != "kakenhi"
+                              result[:warn] << {
+                                 error_id: :degree_grantor_kakenhi_missing,
+                                 message: "Element 'jpcoar:degreeGrantor/nameIdentifier' should have @nameIdentifierScheme attribute with 'kakenhi'",
+                                 identifier: identifier,
+                              }
+                           end
+                        end
+                     end
                   end
                end
             end
          end
       end 
-      #29. 学位名
-      langs = xml_langs(metadata, "dcndl:degreeName")
-      if not langs.empty? and not langs.include?("en")
-         result[:warn] << {
-            error_id: :degree_name_english,
-            message: "Element 'dcndl:degreename' does not include English name: #{langs.join(", ")}",
-            identifier: identifier,
-         }
-      end
-      #34. 学位授与機関
-      metadata.find("./jpcoar:degreeGrantor", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |degree_grantor|
-         degree_grantor.find("jpcoar:nameIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
-            if not e.attributes["nameIdentifierScheme"] or e.attributes["nameIdentifierScheme"] != "kakenhi"
-               result[:warn] << {
-                  error_id: :degree_grantor_kakenhi_missing,
-                  message: "Element 'jpcoar:degreeGrantor/nameIdentifier' should have @nameIdentifierScheme attribute with 'kakenhi'",
-                  identifier: identifier,
-               }
-            end
-         end
-      end
       #38. 原文の言語
       metadata.find("./dcndl:originalLanguage", "dcndl:#{NAMESPACES[:dcndl]}").each do |e|
          if not e.content =~ /\A[a-z]{3}\z/
@@ -803,7 +806,7 @@ class JPCOARValidator
             if extent.content !~ /\d+/
                result[:warn] << {
                   error_id: :extent_format,
-                  message: "Element 'jpcoar:file/jpcoar:extent' format error: #{e.content}",
+                  message: "Element 'jpcoar:file/jpcoar:extent' format error: #{extent.content}",
                   identifier: identifier,
                }
             end

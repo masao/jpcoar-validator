@@ -503,8 +503,41 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:original_language_format)
+      end
+    end
+    it "should check objectype_not_found" do
+      validator = JPCOARValidator.new("")
+      %w[
+        43_file/uri_objectype_not_found.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:objectype_not_found)
+      end
+    end
+    it "should check mimetype_format" do
+      validator = JPCOARValidator.new("")
+      %w[
+        43_file/mimetype_format.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:mimetype_format)
+      end
+    end
+    it "should check extent_format" do
+      validator = JPCOARValidator.new("")
+      %w[
+        43_file/extent_format.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:extent_format)
       end
     end
   end
