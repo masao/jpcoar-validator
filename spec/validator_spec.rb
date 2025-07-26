@@ -364,5 +364,17 @@ RSpec.describe JPCOARValidator do
         expect(results[:warn].map{|e| e[:error_id]}).to include(:format_version)
       end
     end
+    it "should check coar_version_type_mismatch" do
+      validator = JPCOARValidator.new("")
+      %w[
+        17_version/coar_version_type_mismatch_wrong_content.xml
+        17_version/coar_version_type_mismatch_wrong_uri.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:coar_version_type_mismatch)
+      end
+    end
   end
 end
