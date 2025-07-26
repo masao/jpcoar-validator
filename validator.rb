@@ -672,7 +672,7 @@ class JPCOARValidator
          end
       end
       #23.5 研究課題番号
-      metadata.find("./jpcoar:awardNumber", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+      metadata.find(".//jpcoar:awardNumber", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
          award_number_type = e.attributes["awardNumberType"]
          if award_number_type and award_number_type == "JGN" and e.content !~ /\AJP[0-9a-zA-Z]+/
             result[:warn] << {
@@ -710,10 +710,10 @@ class JPCOARValidator
       #26. 巻, 27. 号
       ["jpcoar:volume", "jpcoar:issue"].each do |name|
          metadata.find("./#{name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
-            if e.content =~ /年|vol|号|年|issue/
+            if e.content =~ /年|vol|巻|号|年|issue/i
                result[:warn] << {
                   error_id: :volume_unnecessary_chars,
-                  message: "Element #{name} includes unnecessary characters: #{e.content}",
+                  message: "Element '#{name}' includes unnecessary characters: #{e.content}",
                   identifier: identifier,
                }
             end

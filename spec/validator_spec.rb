@@ -422,8 +422,42 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:vor_relation_not_found)
+      end
+    end
+    it "should check award_number_format_error" do
+      validator = JPCOARValidator.new("")
+      %w[
+        23_fundingReference/award_number_format_error.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:award_number_format_error)
+      end
+    end
+    it "should check award_number_type_not_supported" do
+      validator = JPCOARValidator.new("")
+      %w[
+        23_fundingReference/award_number_type_not_supported.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:award_number_type_not_supported)
+      end
+    end
+    it "should check volume_unnecessary_chars" do
+      validator = JPCOARValidator.new("")
+      %w[
+        26_volume/volume_unnecessary_chars.xml
+        27_issue/volume_unnecessary_chars.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:volume_unnecessary_chars)
       end
     end
   end
