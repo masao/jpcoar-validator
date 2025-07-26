@@ -274,8 +274,20 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:nameIdentifier_mismatch)
+      end
+    end
+    it "should check yomi_not_needed" do
+      validator = JPCOARValidator.new("")
+      %w[
+        3_creator/family_name_yomi_not_needed.xml
+        3_creator/given_name_yomi_not_needed.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:yomi_not_needed)
       end
     end
   end

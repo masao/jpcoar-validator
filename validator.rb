@@ -475,7 +475,7 @@ class JPCOARValidator
       end
       #3.3 作成者姓, 3.4 作成者名
       ["jpcoar:familyName", "jpcoar:givenName"].each do |elem_name|
-         metadata.find("./#{elem_name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+         metadata.find(".//#{elem_name}", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
             if xml_lang(e).nil?
             elsif xml_lang(e) =~ /\Aja-.*/
                result[:warn] << {
