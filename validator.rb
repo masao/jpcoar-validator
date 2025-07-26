@@ -83,12 +83,12 @@ class JPCOARValidator
       :isbn     => /\A[0-9]+[0-9\-]*[0-9X]\Z/oi,
       :NCID     => /\A(AA|AN|BN|BA|BB)[0-9]{7,8}[0-9X]?/o,
    }
-   ACCESS_RIGHTS_RESOURCES = %w[
-      http://purl.org/coar/access_right/c_f1cf
-      http://purl.org/coar/access_right/c_14cb
-      http://purl.org/coar/access_right/c_abf2
-      http://purl.org/coar/access_right/c_16ec
-   ]
+   ACCESS_RIGHTS_RESOURCES = {
+      "http://purl.org/coar/access_right/c_f1cf" => "embargoed access",
+      "http://purl.org/coar/access_right/c_14cb" => "metadata only access",
+      "http://purl.org/coar/access_right/c_abf2" => "open access",
+      "http://purl.org/coar/access_right/c_16ec" => "restricted access",
+   }
 
    attr_reader :baseurl, :prefix
    def initialize( url )
@@ -512,10 +512,16 @@ class JPCOARValidator
                message: "Element 'dcterms:accessRights' needs @rdf:resource attribute: #{e.content}",
                identifier: identifier,
             }
-         elsif not ACCESS_RIGHTS_RESOURCES.include? resource_uri.value
+         elsif not ACCESS_RIGHTS_RESOURCES.has_key? resource_uri.value
             result[:error] << {
                error_id: :access_rights_wrong_uri,
                message: "Element 'dcterms:accessRights' has an invalid URI: #{resource_uri.value} - #{e.content}",
+               identifier: identifier,
+            }
+         elsif ACCESS_RIGHTS_RESOURCES[resource_uri.value] != e.content
+            result[:error] << {
+               error_id: :access_rights_mismatch,
+               message: "Element 'dcterms:accessRights' has an invalid URI and value: #{resource_uri.value} - #{e.content}",
                identifier: identifier,
             }
          elsif resource_uri.value == "http://purl.org/coar/access_right/c_f1cf"

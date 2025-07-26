@@ -319,5 +319,16 @@ RSpec.describe JPCOARValidator do
         expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_wrong_uri)
       end
     end
+    it "should check access_rights_mismatch" do
+      validator = JPCOARValidator.new("")
+      %w[
+        5_accessRights/access_rights_mismatch.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_mismatch)
+      end
+    end
   end
 end
