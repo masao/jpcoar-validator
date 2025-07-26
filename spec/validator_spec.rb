@@ -411,8 +411,19 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_type_obsolete)
+      end
+    end
+    it "should check vor_relation_not_found" do
+      validator = JPCOARValidator.new("")
+      %w[
+        20_relation/vor_relation_not_found.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:vor_relation_not_found)
       end
     end
   end

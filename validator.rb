@@ -582,8 +582,23 @@ class JPCOARValidator
          if not COAR_VERSION_TYPES[e.content.to_sym] or COAR_VERSION_TYPES[e.content.to_sym] != resource_uri
             result[:error] << {
                error_id: :coar_version_type_mismatch,
-               message: "Element 'oaire:version' should comform to COAR Version Vocab: #{e.content} !=  #{resource_uri}"
+               message: "Element 'oaire:version' should comform to COAR Version Vocab: #{e.content} !=  #{resource_uri}",
+               identifier: identifier
             }
+         end
+         case e.content
+         when "VoR", "CVoR", "EVoR" #VoR以外のときは jpcoar:relation@relationType="isVersionOf"を入れる
+         else
+            relation_types = metadata.find("./relation").map do |e|
+               e.attributes["relationType"]
+            end
+            if not relation_types.include? "isVersionOf"
+               result[:warn] << {
+                  error_id: :vor_relation_not_found,
+                  message: "Element 'oaire:version' is '#{e.content}, but 'jpcoar:relation' @relationType='isVersionOf' is not found",
+                  identifier: identifier,
+               }
+            end
          end
       end
       #18. 識別子
@@ -628,7 +643,7 @@ class JPCOARValidator
             result[:warn] << {
                error_id: :identifier_registration_doi_mismatch,
                message: "Elements 'identifierRegistration' does not included in 'identifier': #{registration_id} - #{dois.inspect}",
-               identfitier: identifier,
+               identifier: identifier,
             }
          end
       end
@@ -684,7 +699,7 @@ class JPCOARValidator
                message: "Element 'jpcoar:sourceIdentifier' @identifierType='ISSN' is not recommended: #{identifier_type} - #{e.content}"
             }
          end
-         if not IDENTIFIER_REGEXP[identifier_type.to_sym].match(e.content)
+         if IDENTIFIER_REGEXP[identifier_type.to_sym] and not IDENTIFIER_REGEXP[identifier_type.to_sym].match(e.content)
             result[:error] << {
                error_id: :identifier_type_mismatch,
                message: "jpcoar:sourceIdentifier format is mismatched: #{identifier_type} - #{e.content}",
