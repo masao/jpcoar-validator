@@ -496,5 +496,16 @@ RSpec.describe JPCOARValidator do
         expect(results[:warn].map{|e| e[:error_id]}).to include(:degree_name_english)
       end
     end
+    it "should check original_language_format" do
+      validator = JPCOARValidator.new("")
+      %w[
+        38_originalLanguage/original_language_format.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:original_language_format)
+      end
+    end
   end
 end

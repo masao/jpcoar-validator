@@ -769,8 +769,8 @@ class JPCOARValidator
       end
       #38. 原文の言語
       metadata.find("./dcndl:originalLanguage", "dcndl:#{NAMESPACES[:dcndl]}").each do |e|
-         if e.content !~ /\A[a-z]{3}\z/
-            result[:error] << {
+         if not e.content =~ /\A[a-z]{3}\z/
+            result[:warn] << {
                error_id: :original_language_format,
                message: "Element 'dcndl:originalLanguage' should be in ISO-639-3: #{e.content}",
                identifier: identifier,
