@@ -269,11 +269,12 @@ RSpec.describe JPCOARValidator do
       validator = JPCOARValidator.new("")
       %w[
         3_creator/name_identifier_mismatch_orcid.xml
+        3_creator/name_identifier_mismatch_erad.xml
         3_creator/affiliation_name_identifier_mismatch_isni.xml
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        #p [file, results]
+        p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:nameIdentifier_mismatch)
       end
     end
