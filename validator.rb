@@ -633,32 +633,26 @@ class JPCOARValidator
          end
       end
       #20-1. 関連情報識別子
-      metadata.find("./jpcoar:relatedIdentifeir", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+      metadata.find("./jpcoar:relation/jpcoar:relatedIdentifier", NAMESPACES).each do |e|
          identifier_type = e.attributes["identifierType"]
          case identifier_type
-         when "ISSN"
+         when "ISSN", "NAID"
             result[:warn] << {
                error_id: :identifier_type_obsolete,
                identifier: identifier,
-               message: "Element 'jpcoar:relatedIdentifier' @identifierType 'ISSN' is not recommended: #{identifier_type} - #{e.content}"
-            }
-         when "NAID"
-            result[:warn] << {
-               error_id: :identifier_type_obsolete,
-               identifier: :identifier,
-               message: "Element 'jpcoar:relatedIdentifier' @identifierType 'NAID' is not recommended: #{identifier_type} - #{e.content}"
+               message: "Element 'jpcoar:relatedIdentifier' @identifierType='#{identifier_type}' is not recommended: #{identifier_type} - #{e.content}"
             }
          end
       end
       #23.1 助成機関識別子
-      metadata.find("./jpcoar:funderIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
-         identifier_type = e.attributes["identifierType"]
+      metadata.find("./jpcoar:fundingReference/jpcoar:funderIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+         identifier_type = e.attributes["funderIdentifierType"]
          case identifier_type
          when "GRID"
             result[:warn] << {
                error_id: :identifier_type_obsolete,
                identifier: identifier,
-               message: "Element 'jpcoar:funderIdentifier' @identifierType 'GRID' is not recommended: #{identifier_type} - #{e.content}"
+               message: "Element 'jpcoar:funderIdentifier' @identifierType='GRID' is not recommended: #{identifier_type} - #{e.content}"
             }
          end
       end
@@ -681,13 +675,13 @@ class JPCOARValidator
          end
       end
       #24. 収録物識別子
-      metadata.find("./jpcoar:sourceIdentifeir", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
+      metadata.find("./jpcoar:sourceIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
          identifier_type = e.attributes["identifierType"]
          if identifier_type == "ISSN"
             result[:warn] << {
-               error_id: :source_identifier_type_obsolete,
+               error_id: :identifier_type_obsolete,
                identifier: identifier,
-               message: "Element 'jpcoar:sourceIdentifier' @identifierType 'ISSN' is not recommended: #{identifier_type} - #{e.content}"
+               message: "Element 'jpcoar:sourceIdentifier' @identifierType='ISSN' is not recommended: #{identifier_type} - #{e.content}"
             }
          end
          if not IDENTIFIER_REGEXP[identifier_type.to_sym].match(e.content)

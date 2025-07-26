@@ -401,5 +401,19 @@ RSpec.describe JPCOARValidator do
         expect(results[:error].map{|e| e[:error_id]}).to include(:identifier_type_pmid)
       end
     end
+    it "should check identifier_type_obsolete" do
+      validator = JPCOARValidator.new("")
+      %w[
+        20_relation/related_identifier_type_obsolete_issn.xml
+        20_relation/related_identifier_type_obsolete_naid.xml
+        23_fundingReference/funder_identifier_type_obsolete.xml
+        24_sourceIdentifier/identifier_type_obsolete.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:identifier_type_obsolete)
+      end
+    end
   end
 end
