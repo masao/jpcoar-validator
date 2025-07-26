@@ -12,6 +12,7 @@
 
 * JPCOAR 1.0対応
 * ResourceSync対応
+* データ連携仕様: [NDL](https://support.irdb.nii.ac.jp/ja/harvest/jpcoar/dataprovide_ndl), [JaLC](https://support.irdb.nii.ac.jp/ja/harvest/jpcoar/dataprovide_jalc), [CiNii Research](https://support.irdb.nii.ac.jp/ja/harvest/jpcoar/dataprovide_ciniir)
 
 ## 免責事項 (Dislaimer)
 
