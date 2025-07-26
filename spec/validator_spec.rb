@@ -444,7 +444,7 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:award_number_type_not_supported)
       end
     end
@@ -456,8 +456,22 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:warn].map{|e| e[:error_id]}).to include(:volume_unnecessary_chars)
+      end
+    end
+    it "should check dissertation_details_not_found" do
+      validator = JPCOARValidator.new("")
+      %w[
+        31_dissertationNumber/dissertation_details_not_found.xml
+        32_degreeName/dissertation_details_not_found.xml
+        33_dateGranted/dissertation_details_not_found.xml
+        34_degreeGrantor/dissertation_details_not_found.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:error].map{|e| e[:error_id]}).to include(:dissertation_details_not_found)
       end
     end
   end
