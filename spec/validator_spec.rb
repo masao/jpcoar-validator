@@ -315,7 +315,7 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_wrong_uri)
       end
     end
@@ -326,8 +326,30 @@ RSpec.describe JPCOARValidator do
       ].each do |file|
         doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
         results = validator.validate_jpcoar(doc)
-        p [file, results]
+        #p [file, results]
         expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_mismatch)
+      end
+    end
+    it "should check publisher_name_not_found" do
+      validator = JPCOARValidator.new("")
+      %w[
+        11_publisher/publisher_name_not_found.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:publisher_name_not_found)
+      end
+    end
+    it "should check format_iso3166_1" do
+      validator = JPCOARValidator.new("")
+      %w[
+        11_publisher/publication_place_format_iso3166_1.xml
+      ].each do |file|
+        doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", file))
+        results = validator.validate_jpcoar(doc)
+        #p [file, results]
+        expect(results[:warn].map{|e| e[:error_id]}).to include(:format_iso3166_1)
       end
     end
   end

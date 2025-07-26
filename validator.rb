@@ -552,7 +552,7 @@ class JPCOARValidator
          end
       end
       #11-4 出版地（国名コード）
-      metadata.find("./dcndl:publicationPlace", "dcndl:#{NAMESPACES[:dcndl]}").each do |e|
+      metadata.find(".//dcndl:publicationPlace", "dcndl:#{NAMESPACES[:dcndl]}").each do |e|
          if e.content.nil? or e.content !~ /\A[a-zA-Z]{3}\z/
             result[:warn] << {
                message: "Element 'dcndl:publicationPlace' should be in the format of ISO 3166-1 alpha-3: #{e.content}",
