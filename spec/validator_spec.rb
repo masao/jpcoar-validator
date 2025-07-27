@@ -542,3 +542,24 @@ RSpec.describe JPCOARValidator do
     end
   end
 end
+
+RSpec::describe JPCOARValidatorFromString do
+  context "#validate" do
+    it "should check and validate it" do
+      TEST_XML = <<-EOF
+<?xml version="1.0"?>
+<jpcoar:jpcoar xmlns:jpcoar="https://github.com/JPCOAR/schema/blob/master/2.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:datacite="https://schema.datacite.org/meta/kernel-4/" xmlns:dcndl="http://ndl.go.jp/dcndl/terms/" xmlns:oaire="http://namespace.openaire.eu/schema/oaire/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<dc:title xml:lang="ja">タイトル</dc:title>
+<dc:type rdf:resource="http://purl.org/coar/resource_type/c_6501">departmental bulletin paper</dc:type>
+<jpcoar:identifier identifierType="URI">https://example.jp/example01</jpcoar:identifier>
+</jpcoar:jpcoar>
+      EOF
+      validator = JPCOARValidatorFromString.new(TEST_XML)
+      results = {}
+      expect {
+        results = validator.validate
+      }.not_to raise_error
+      expect(results[:error]).to be_empty
+    end
+  end
+end

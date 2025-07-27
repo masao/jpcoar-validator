@@ -34,6 +34,7 @@ class JPCOARValidator
       datacite: "https://schema.datacite.org/meta/kernel-4/",
       dcndl: "http://ndl.go.jp/dcndl/terms/",
       oaire: "http://namespace.openaire.eu/schema/oaire/",
+      rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
    }
    COAR_VERSION_TYPES = {
       AO: "http://purl.org/coar/version/c_b1a7d7d4d402bcce",
