@@ -48,7 +48,7 @@ JPCOAR Validator
 <div id="tabs-1">
 <div class="form">
 <form action="<%=h request.script_name %>" method="GET">
-<input type="text" name="url" value="<%=h( @url || "http://" ) %>" size="70" />
+<input type="text" name="url" value="<%=h( @url || "https://" ) %>" size="70" />
 <input type="submit" value="  Validate!  " /><br>
 <div id="toggle_option">
 <a href="#" onclick="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none';">詳細設定 &raquo;</a>
@@ -70,7 +70,7 @@ JPCOAR Validator
 <textarea name="xml" rows="10" cols="70" placeholder="<%=h %Q|<?xml version="1.0"?>
 <jpcoar:jpcoar #{ JPCOARValidator::NAMESPACES.map do |ns, uri|
   %Q[xmlns:#{ns}="#{uri}"]
-end.join(" ")
+end.join("\n    ")
  }>
 <dc:title xml:lang="ja">タイトル</dc:title>
 <dc:type rdf:resource="http://purl.org/coar/resource_type/c_6501">departmental bulletin paper</dc:type>
