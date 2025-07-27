@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2025-07-27T05:01:01Z</responseDate>
+  <request verb="GetRecord" metadataPrefix="jpcoar_2.0" identifier="oai:tsukuba.repo.nii.ac.jp:02000144">https://tsukuba.repo.nii.ac.jp/oai</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:tsukuba.repo.nii.ac.jp:02000144</identifier>
+        <datestamp>2025-06-06T02:17:39Z</datestamp>
+        <setSpec>3:62:1722555831928</setSpec>
+      </header>
+      <metadata>
+        <jpcoar:jpcoar xmlns:datacite="https://schema.datacite.org/meta/kernel-4/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcndl="http://ndl.go.jp/dcndl/terms/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:jpcoar="https://github.com/JPCOAR/schema/blob/master/2.0/" xmlns:oaire="http://namespace.openaire.eu/schema/oaire/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rioxxterms="http://www.rioxx.net/schema/v2.0/rioxxterms/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="https://github.com/JPCOAR/schema/blob/master/2.0/" xsi:schemaLocation="https://github.com/JPCOAR/schema/blob/master/2.0/jpcoar_scm.xsd">
+          <dc:title xml:lang="en">Aggregation and Utilization of Metadata for Intangible Folk Cultural Properties Using Linked Open Data</dc:title>
+          <jpcoar:creator/>
+          <jpcoar:creator>
+            <jpcoar:creatorName xml:lang="en">Sato, Itsumi</jpcoar:creatorName>
+          </jpcoar:creator>
+          <jpcoar:creator>
+            <jpcoar:nameIdentifier nameIdentifierURI="https://nrid.nii.ac.jp/ja/nrid/1000000399271" nameIdentifierScheme="e-Rad_Researcher">00399271</jpcoar:nameIdentifier>
+            <jpcoar:nameIdentifier nameIdentifierURI="https://orcid.org/0000-0002-2458-6988" nameIdentifierScheme="ORCID">0000-0002-2458-6988</jpcoar:nameIdentifier>
+            <jpcoar:creatorName xml:lang="en">TAKAKU, Masao</jpcoar:creatorName>
+          </jpcoar:creator>
+          <dcterms:accessRights rdf:resource="http://purl.org/coar/access_right/c_abf2">open access</dcterms:accessRights>
+          <dc:rights xml:lang="en">© Springer Nature Switzerland AG 2021. The final authenticated version is available online at https://doi.org/10.1007/978-3-030-71292-1_14.</dc:rights>
+          <datacite:description xml:lang="en" descriptionType="Other">Diversity, Divergence, Dialogue: 16th International Conference, iConference 2021, Beijing, China, March 17–31, 2021, Proceedings, Part I. Print ISBN: 978-3-030-71291-4</datacite:description>
+          <dc:publisher xml:lang="en">Springer</dc:publisher>
+          <datacite:date dateType="Issued">2021-03</datacite:date>
+          <dc:language>eng</dc:language>
+          <dc:type rdf:resource="http://purl.org/coar/resource_type/c_6501">journal article</dc:type>
+          <oaire:version rdf:resource="http://purl.org/coar/version/c_ab4af688f83e57aa">AM</oaire:version>
+          <jpcoar:identifier identifierType="HDL">http://hdl.handle.net/2241/0002000144</jpcoar:identifier>
+          <jpcoar:identifier identifierType="URI">https://tsukuba.repo.nii.ac.jp/records/2000144</jpcoar:identifier>
+          <jpcoar:relation relationType="isVersionOf">
+            <jpcoar:relatedIdentifier identifierType="DOI">https://doi.org/10.1007/978-3-030-71292-1_14</jpcoar:relatedIdentifier>
+          </jpcoar:relation>
+          <jpcoar:sourceIdentifier identifierType="PISSN">03029743</jpcoar:sourceIdentifier>
+          <jpcoar:sourceTitle xml:lang="en">Lecture Notes in Computer Science</jpcoar:sourceTitle>
+          <jpcoar:volume>12645</jpcoar:volume>
+          <jpcoar:pageStart>154</jpcoar:pageStart>
+          <jpcoar:pageEnd>164</jpcoar:pageEnd>
+          <jpcoar:conference/>
+          <jpcoar:file>
+            <jpcoar:URI objectType="fulltext">https://tsukuba.repo.nii.ac.jp/record/2000144/files/LNCS_12645_154-2.pdf</jpcoar:URI>
+            <jpcoar:mimeType>application/pdf</jpcoar:mimeType>
+            <jpcoar:extent>794 KB</jpcoar:extent>
+            <datacite:date dateType="Available">2021-06-28</datacite:date>
+          </jpcoar:file>
+        </jpcoar:jpcoar>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>

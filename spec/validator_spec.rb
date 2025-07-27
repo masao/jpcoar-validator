@@ -1,5 +1,5 @@
+spec_base_dir = File.dirname(__FILE__)
 RSpec.describe JPCOARValidator do
-  spec_base_dir = File.dirname(__FILE__)
   context "#validate_jpcoar" do
     it "should load a XML file and validate it." do
       validator = JPCOARValidator.new("")
@@ -559,6 +559,12 @@ RSpec::describe JPCOARValidatorFromString do
       expect {
         results = validator.validate
       }.not_to raise_error
+      expect(results[:error]).to be_empty
+    end
+    it "should check getRecord XML file" do
+      file = File.join(spec_base_dir, "example/getRecord_02000144.xml")
+      validator = JPCOARValidatorFromString.new(open(file).read)
+      results = validator.validate
       expect(results[:error]).to be_empty
     end
   end

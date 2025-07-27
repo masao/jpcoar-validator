@@ -73,9 +73,9 @@ class JPCOARValidator
       JaLC: /\A10\..+/,
       Crossref: /\A10\..+/,
       DataCite: /\A10\..+/,
-      ISSN: /\A[0-9]{4}-[0-9]{3}[0-9X]\z/o,
-      PISSN: /\A[0-9]{4}-[0-9]{3}[0-9X]\z/o,
-      EISSN: /\A[0-9]{4}-[0-9]{3}[0-9X]\z/o,
+      ISSN: /\A[0-9]{4}-?[0-9]{3}[0-9X]\z/o,
+      PISSN: /\A[0-9]{4}-?[0-9]{3}[0-9X]\z/o,
+      EISSN: /\A[0-9]{4}-?[0-9]{3}[0-9X]\z/o,
       NCID: /\A(AA|AN|BN|BA|BB)[0-9]{7,8}[0-9X]?/o,
       #:pmid     => /\Ainfo:pmid\/[0-9]+\Z/o,
       #:NAID     => %r|\Ahttp://ci\.nii\.ac\.jp/naid/[0-9]+\Z|o,
@@ -422,14 +422,17 @@ class JPCOARValidator
       end
       #3. 作成者
       type = metadata.find("./dc:type", "dc:#{NAMESPACES[:dc]}").first
-      resource_uri = type.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").value
-      creators = metadata.find("./jpcoar:creator", "jpcoar:#{NAMESPACES[:jpcoar]}")
-      if resource_uri =~ %r!http://purl.org/coar/resource_type/(c_46ec|c_7a1f|c_bdcc|c_db06)! and creators.empty?
-         result[:error] << {
-            error_id: :no_creator_in_thesis,
-            message: "Elements 'jpcoar:cerator' is not available.",
-            identifier: identifier,
-         }
+      if type
+         resource_uri = type.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource")
+         resource_uri = resource_uri.value if resource_uri
+         creators = metadata.find("./jpcoar:creator", "jpcoar:#{NAMESPACES[:jpcoar]}")
+         if resource_uri =~ %r!http://purl.org/coar/resource_type/(c_46ec|c_7a1f|c_bdcc|c_db06)! and creators.empty?
+            result[:error] << {
+               error_id: :no_creator_in_thesis,
+               message: "Elements 'jpcoar:cerator' is not available.",
+               identifier: identifier,
+            }
+         end
       end
       #3.1 作成者識別子
       metadata.find(".//jpcoar:nameIdentifier", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |name_identifier|
@@ -868,8 +871,25 @@ class JPCOARValidatorFromString < JPCOARValidator
    def validate
       parser = LibXML::XML::Parser.string( @xml )
       begin
-        doc = parser.parse
-        validate_jpcoar( doc )
+         doc = parser.parse
+         p doc.root.name
+         p doc.root.namespaces.to_a
+         if doc.root.name == "jpcoar"
+            validate_jpcoar( doc )
+         else
+            jpcoar = doc.find("//jpcoar:jpcoar", NAMESPACES)
+            if not jpcoar.empty?
+               doc.root = jpcoar.first
+               validate_jpcoar( doc )
+            else
+               {
+                  error: [
+                     message: "jpcoar metadata not found.",
+                     error_id: :jpcoar_element_not_found,
+                  ]
+               }
+            end
+         end
       rescue LibXML::XML::Error => err
         { :error => [
             :error_id => :parse_error,
