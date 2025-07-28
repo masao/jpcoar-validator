@@ -237,6 +237,7 @@ RSpec.describe JPCOARValidator do
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/3_creator/affiliation_name_identifier_content_is_uri_ror.xml"))
       results = validator.validate_jpcoar(doc)
       expect(results[:warn].map{|e| e[:error_id]}).not_to include(:nameidentifier_content_is_uri)
+      expect(results[:warn].map{|e| e[:error_id]}).not_to include(:nameIdentifier_mismatch)
     end
     it "should check nameIdentifierScheme_obsolete" do
       validator = JPCOARValidator.new("")
