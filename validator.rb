@@ -56,7 +56,7 @@ class JPCOARValidator
       kakenhi: /\A\d{5}\z/,
       Ringgold: /\ARIN[0-9]+\z/,
       GRID: /\Agrid\.[0-9]+\.[0-9a-z]+\z/,
-      ROR: /\Ahttps:\/\/ror\.org\/.+\z/,
+      ROR: /\A0[a-hj-km-np-tv-z|0-9]{6}[0-9]{2}\z/,
    }
    NAME_IDENTIFIER_URI_REGEXP = {
       #"e-Rad_Researcher": /\A\d{8}\z/,
