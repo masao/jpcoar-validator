@@ -8,7 +8,7 @@ RSpec.describe JPCOARValidator do
         #p file
         doc = LibXML::XML::Document.file(file)
         case file
-        when /07_dataset\.xml\z/, /08_conference_object\.xml\z/, /11_dataset_external_link\.xml\z/, /12_digital_archive\.xml/
+        when /07_dataset\.xml\z/, /11_dataset_external_link\.xml\z/, /12_digital_archive\.xml/
           # skip
         else
           expect {
@@ -23,17 +23,6 @@ RSpec.describe JPCOARValidator do
           end
         end
       end
-    end
-    it "should load a XML file and validate it on 08_conference_object.", pending: "Fix PR JPCOAR/schema#3" do
-      validator = JPCOARValidator.new("")
-      file = "schema/2.0/samples/08_conference_object.xml"
-      doc = LibXML::XML::Document.file(file)
-      results = nil
-      expect {
-        results = validator.validate_jpcoar(doc)
-      }.not_to raise_error
-      p [file, results]
-      expect(results[:error]).to be_empty
     end
     it "should load a XML file and validate it on 07, 11, 12.", pending: "Fix datacite:description on xmllang_not_found" do
       validator = JPCOARValidator.new("")
