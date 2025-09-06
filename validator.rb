@@ -546,6 +546,17 @@ class JPCOARValidator
             end
          end
       end
+      # 6. 権利情報
+      metadata.find("./dc:rights", NAMESPACES).each do |e|
+         resource_uri = e.attributes.get_attribute_ns("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource")
+         if resource_uri.nil? and e.content =~ /creative([\s\-]*)commons/i
+            result[:warn] << {
+               error_id: :rights_resource_uri_missing,
+               message: "Element 'dc:rights' specifies Creative Commons, but resource URI is not found.",
+               identifier: identifier,
+            }
+         end
+      end
       #11. 出版者
       metadata.find("./jpcoar:publisher", "jpcoar:#{NAMESPACES[:jpcoar]}").each do |e|
          name = e.find(".//jpcoar:publisherName", "jpcoar:#{NAMESPACES[:jpcoar]}").first

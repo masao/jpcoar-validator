@@ -529,6 +529,13 @@ RSpec.describe JPCOARValidator do
         expect(results[:warn].map{|e| e[:error_id]}).to include(:extent_format)
       end
     end
+    it "should check resource uri for dc:rights" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/6_rights/cc_uri_notfound.xml"))
+      results = validator.validate_jpcoar(doc)
+      p results
+      expect(results[:warn].map{|e| e[:error_id]}).to include(:rights_resource_uri_missing)
+    end
   end
 end
 
