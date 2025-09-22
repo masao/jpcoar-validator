@@ -14,7 +14,7 @@
 * ResourceSync対応
 * データ連携仕様: [NDL](https://support.irdb.nii.ac.jp/ja/harvest/jpcoar/dataprovide_ndl), [JaLC](https://support.irdb.nii.ac.jp/ja/harvest/jpcoar/dataprovide_jalc), [CiNii Research](https://support.irdb.nii.ac.jp/ja/harvest/jpcoar/dataprovide_ciniir)
 
-## 免責事項 (Dislaimer)
+## 免責事項 (Disclaimer)
 
 本ツールは個人によって開発されたものであり、JPCOARコミュニティおよびIRDB運営元の国立情報学研究所（NII）とは一切関係がありません。
 本ツールに関するご質問やお問い合わせは、高久個人宛にお願いいたします。
