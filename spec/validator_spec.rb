@@ -415,6 +415,13 @@ RSpec.describe JPCOARValidator do
         expect(results[:warn].map{|e| e[:error_id]}).to include(:vor_relation_not_found)
       end
     end
+    it "should check vor_relation_not_found working" do
+      validator = JPCOARValidator.new("")
+      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", "20_relation/vor_relation_success.xml"))
+      results = validator.validate_jpcoar(doc)
+      p [results]
+      expect(results[:warn].map{|e| e[:error_id]}).not_to include(:vor_relation_not_found)
+    end
     it "should check award_number_format_error" do
       validator = JPCOARValidator.new("")
       %w[

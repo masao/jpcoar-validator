@@ -604,7 +604,7 @@ class JPCOARValidator
          case e.content
          when "VoR", "CVoR", "EVoR" #VoR以外のときは jpcoar:relation@relationType="isVersionOf"を入れる
          else
-            relation_types = metadata.find("./relation").map do |e|
+            relation_types = metadata.find("./jpcoar:relation").map do |e|
                e.attributes["relationType"]
             end
             if not relation_types.include? "isVersionOf"
