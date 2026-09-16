@@ -28,8 +28,11 @@ class URI::HTTP
    end
 end
 
+XML_CATALOG = File.expand_path("catalog.xml", __dir__)
+ENV["XML_CATALOG_FILES"] ||= XML_CATALOG
+
 class JPCOARValidator
-   XSD = "schema/2.0/jpcoar_scm.xsd"
+   XSD = File.expand_path("schema/2.0/jpcoar_scm.xsd", __dir__)
    JPCOAR_NAMESPACE = "https://github.com/JPCOAR/schema/blob/master/2.0/"
    NAMESPACES = {
       jpcoar: "https://github.com/JPCOAR/schema/blob/master/2.0/",
