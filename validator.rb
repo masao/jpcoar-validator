@@ -10,7 +10,11 @@ require "optparse"
 require "pp"
 require "pathname"
 
-require "libxml"
+begin
+   require "libxml"
+rescue LoadError
+   require "libxml-ruby"
+end
 require "faraday"
 require "faraday/net_http_persistent"
 
