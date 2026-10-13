@@ -544,6 +544,29 @@ RSpec.describe JPCOARValidator do
       expect(results[:warn].map{|e| e[:error_id]}).to include(:rights_resource_uri_missing)
     end
   end
+  describe "#merge_results" do
+    it "preserves the resumption token" do
+      base = {
+        error: [],
+        warn: [],
+        info: ["ListRecords verified"],
+        next_token: "abc123"
+      }
+
+      additional = {
+        error: [{ error_id: :invalid_title }],
+        warn: [],
+        info: []
+      }
+      validator = JPCOARValidator.new("")
+      result = validator.send(:merge_results, base, additional)
+
+      expect(result[:next_token]).to eq("abc123")
+      expect(result[:error].size).to eq(1)
+      expect(result[:info]).to eq(["ListRecords verified"])
+    end
+  end
+
 end
 
 RSpec::describe JPCOARValidatorFromString do

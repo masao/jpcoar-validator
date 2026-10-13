@@ -90,6 +90,7 @@ class JPCOARValidatorSchematron < JPCOARValidator
 end
 
 class JPCOARValidatorSchematronFromString < JPCOARValidatorFromString
+end
 
 if $0 == __FILE__
    options = {

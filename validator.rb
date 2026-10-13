@@ -880,12 +880,18 @@ class JPCOARValidator
       http.read_timeout = 30
       http
    end
-   def merge_results(*results)
-   {
-      error: results.flat_map { |r| r[:error] },
-      warn:  results.flat_map { |r| r[:warn] },
-      info:  results.flat_map { |r| r[:info] }
-   }
+
+   RESULT_ARRAY_KEYS = %i[error warn info].freeze
+   def merge_results(base, additional)
+      base.merge(additional) do |key, old_value, new_value|
+         if RESULT_ARRAY_KEYS.include?(key)
+            old_value + new_value
+         elsif old_value == new_value
+            old_value
+         else
+            raise ArgumentError, "Conflicting result value: #{key}"
+         end
+      end
    end
 end
 
