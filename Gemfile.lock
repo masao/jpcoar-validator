@@ -4,7 +4,7 @@ GEM
     base64 (0.3.0)
     connection_pool (3.0.2)
     diff-lcs (1.6.2)
-    faraday (2.14.3)
+    faraday (2.14.4)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -13,19 +13,21 @@ GEM
     faraday-net_http_persistent (2.3.1)
       faraday (~> 2.5)
       net-http-persistent (>= 4.0.4, < 5)
-    json (2.20.0)
-    libxml-ruby (5.0.5)
+    json (3.0.2)
+    libxml-ruby (6.0.0)
     logger (1.7.0)
-    mustermann (3.0.4)
-      ruby2_keywords (~> 0.0.1)
-    net-http (0.9.1)
+    mustermann (3.1.1)
+    net-http (0.10.0)
+      net-protocol (>= 0.3.0)
       uri (>= 0.11.1)
     net-http-persistent (4.0.8)
       connection_pool (>= 2.2.4, < 4)
+    net-protocol (0.4.0)
+      timeout
     nio4r (2.7.5)
-    puma (7.2.1)
+    puma (8.0.2)
       nio4r (~> 2.0)
-    rack (3.2.6)
+    rack (3.2.7)
     rack-protection (4.2.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -46,7 +48,6 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.7)
-    ruby2_keywords (0.0.5)
     sinatra (4.2.1)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
@@ -54,8 +55,9 @@ GEM
       rack-protection (= 4.2.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
-    tilt (2.7.0)
-    uri (1.1.1)
+    tilt (2.9.0)
+    timeout (0.6.1)
+    uri (1.1.2)
 
 PLATFORMS
   ruby
@@ -70,4 +72,4 @@ DEPENDENCIES
   sinatra
 
 BUNDLED WITH
-  4.0.3
+  4.0.16

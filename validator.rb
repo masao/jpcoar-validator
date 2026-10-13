@@ -102,6 +102,7 @@ class JPCOARValidator
       #schema = http(URI.parse XSD).start do |con|
       #  con.get(XSD)
       #end
+      ENV["XML_CATALOG_FILES"] ||= File.expand_path("catalog.xml", __dir__)
       schema_doc = LibXML::XML::Document.file(XSD)
       @xml_schema = LibXML::XML::Schema.document(schema_doc)
       @prefix = nil
@@ -229,14 +230,12 @@ class JPCOARValidator
          end
          identifier = e.parent.find( "./oai:header/oai:identifier",
                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
-         validate_jpcoar( metadata, identifier ).each do |k, v|
-            result[k] += v
-         end
+         result = merge_results(result, validate_jpcoar( metadata, identifier ))
       end
       result
    end
 
-   def validate_jpcoar( metadata, identifier = nil )
+   def validate_xml_schema( metadata, identifier = nil )
       result = {
          :warn => [],
          :error=> [],
@@ -256,6 +255,7 @@ class JPCOARValidator
       begin
          metadata.validate_schema( @xml_schema )
       rescue LibXML::XML::Error => err
+         STDERR.puts err.inspect
          error_id =
             case err.message
             when /is not a valid value of the atomic type 'xs:positiveInteger'/
@@ -292,7 +292,10 @@ class JPCOARValidator
          }
          result[ :error ] << error
       end
-
+      result
+   end
+   def validate_jpcoar( metadata, identifier = nil )
+      result = validate_xml_schema( metadata, identifier )
       #1. タイトル
       #2. その他のタイトル
       %w[
@@ -832,8 +835,6 @@ class JPCOARValidator
          end
       end
 
-
-
       result
    end
 
@@ -875,6 +876,13 @@ class JPCOARValidator
       http.open_timeout = 30
       http.read_timeout = 30
       http
+   end
+   def merge_results(*results)
+   {
+      error: results.flat_map { |r| r[:error] },
+      warn:  results.flat_map { |r| r[:warn] },
+      info:  results.flat_map { |r| r[:info] }
+   }
    end
 end
 

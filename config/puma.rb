@@ -7,5 +7,5 @@ threads threads_count, threads_count
 preload_app!
 
 rackup      "#{root}/config.ru"
-port        ENV['PORT']     || 3000
+port        ENV['PORT']     || 10000
 environment ENV['RACK_ENV'] || 'development'
