@@ -1,8 +1,19 @@
 IMAGE := jpcoar-validator
 DOCKER := docker
+MAVEN := mvn
 RUBY_VERSION ?= 3.4
 
-.PHONY: build test build-production run shell clean
+XSLT := xslt/jpcoar2.0.xsl
+
+.PHONY: xslt xslt-check build test build-production run shell clean
+
+# Schematron から XSLT を生成・更新
+xslt:
+	$(MAVEN) -B process-resources
+
+# 生成済み XSLT が Git 管理版と一致するか確認
+xslt-check: xslt
+	git diff --exit-code -- $(XSLT)
 
 # テスト用イメージ
 build:
