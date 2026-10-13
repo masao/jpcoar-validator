@@ -2,10 +2,12 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
-# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+# Build the Docker test stage for each Ruby version in the matrix
+# and run RSpec inside the container.
+# Each container starts the Java validator through its entrypoint
+# before running the tests.
 
-name: Ruby
+name: Ruby tests (Docker)
 
 on:
   push:
@@ -19,6 +21,9 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: [ "3.3", "3.4", "4.0" ]
 
     steps:
     - uses: actions/checkout@v4
@@ -28,6 +33,7 @@ jobs:
     - name: Build test image
       run: |
         docker build \
+          --build-arg RUBY_VERSION=${{ matrix.ruby-version }} \
           --target test \
           -t jpcoar-validator:test \
           .
