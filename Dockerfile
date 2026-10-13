@@ -11,7 +11,7 @@ WORKDIR /build
 
 # Maven dependencies
 COPY pom.xml ./
-RUN mvn -B dependency:go-offline
+#SKIP: RUN mvn -B dependency:go-offline
 
 # Java source and Schematron files
 COPY src/ ./src/
