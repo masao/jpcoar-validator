@@ -13,7 +13,7 @@ class App < Sinatra::Base
     end
     @data = nil
     if not @url.nil? and not @url.empty? and not @url == "http://"
-      @validator = JPCOARValidator.new( @url )
+      @validator = JPCOARValidatorSchematron.new( @url )
       @data = @validator.validate( @options )
     end
     erb :index
@@ -24,7 +24,7 @@ class App < Sinatra::Base
     @options = {}
     @data = nil
     if not @xml.nil? and not @xml.empty?
-      @validator = JPCOARValidatorFromString.new( @xml )
+      @validator = JPCOARValidatorSchematronFromString.new( @xml )
       @data = @validator.validate
     end
     erb :index
