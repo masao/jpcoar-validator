@@ -772,67 +772,67 @@
     </sch:rule>
   </sch:pattern>
 
-  <!-- 18. 識別子 -->
+  <!-- 18. 識別子, 24. 収録物識別子 -->
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'DOI'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^https?://doi\.org/10\.'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'HDL'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^https?://hdl\.handle\.net/'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'JaLC'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^10\..+'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'Crossref'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^10\..+'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'DataCite'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^10\..+'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'ISSN'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^[0-9]{4}-?[0-9]{3}[0-9X]$'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'PISSN'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^[0-9]{4}-?[0-9]{3}[0-9X]$'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'EISSN'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^[0-9]{4}-?[0-9]{3}[0-9X]$'"/>
   </sch:pattern>
   <sch:pattern is-a="identifier-format">
     <sch:param name="type" value="'NCID'"/>
     <sch:param name="context"
-              value="jpcoar:identifier | jpcoar:identifierRegistration"/>
+              value="jpcoar:identifier | jpcoar:identifierRegistration | jpcoar:sourceIdentifier"/>
     <sch:param name="regexp"
               value="'^(AA|AN|BN|BA|BB)[0-9]{7,8}[0-9X]?$'"/>
   </sch:pattern>
