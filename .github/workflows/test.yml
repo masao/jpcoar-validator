@@ -30,15 +30,5 @@ jobs:
       with:
         submodules: true
 
-    - name: Build test image
-      run: |
-        docker build \
-          --build-arg RUBY_VERSION=${{ matrix.ruby-version }} \
-          --target test \
-          -t jpcoar-validator:test \
-          .
-
-    - name: Run RSpec
-      run: |
-        docker run --rm \
-          jpcoar-validator:test
+    - name: Build and run test
+      run: make test RUBY_VERSION=${{ matrix.ruby-version }}
