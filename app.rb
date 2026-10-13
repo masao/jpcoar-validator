@@ -2,6 +2,7 @@ require "sinatra"
 require "erb"
 
 require_relative "validator.rb"
+require_relative "validator-schematron.rb"
 
 class App < Sinatra::Base
   get "/" do
