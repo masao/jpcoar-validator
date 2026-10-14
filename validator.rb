@@ -239,18 +239,19 @@ class JPCOARValidator
    end
 
    def validate_jpcoar_from_string( xml )
-      parser = LibXML::XML::Parser.string( @xml )
+      parser = LibXML::XML::Parser.string( xml )
       begin
          doc = parser.parse
-         p doc.root.name
-         p doc.root.namespaces.to_a
+         STDERR.puts doc.root.name
+         STDERR.puts doc.root.namespaces.map{|e| e.to_s }
          if doc.root.name == "jpcoar"
             validate_jpcoar( doc )
          else
             jpcoar = doc.find("//jpcoar:jpcoar", NAMESPACES)
             if not jpcoar.empty?
-               doc.root = jpcoar.first
-               validate_jpcoar( doc )
+               metadata = LibXML::XML::Document.new
+               metadata.root = jpcoar.first.copy(true)
+               validate_jpcoar( metadata )
             else
                {
                   error: [
