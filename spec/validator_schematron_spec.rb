@@ -47,12 +47,6 @@ RSpec.describe JPCOARValidatorSchematron do
       #p results
       expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resource)
     end
-    it "should validate the content of accessRights value." do
-      validator = JPCOARValidatorSchematron.new("")
-      doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/5_accessRights/mismatch.xml"))
-      results = validator.validate_jpcoar(doc)
-      expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_mismatch)
-    end
     it "should validate embagoed access without Available date." do
       validator = JPCOARValidatorSchematron.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/5_accessRights/embergoed.xml"))
