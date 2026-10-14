@@ -2,6 +2,7 @@ require "sinatra"
 require "erb"
 
 require_relative "validator.rb"
+require_relative "validator-schematron.rb"
 
 class App < Sinatra::Base
   get "/" do
@@ -13,7 +14,7 @@ class App < Sinatra::Base
     end
     @data = nil
     if not @url.nil? and not @url.empty? and not @url == "http://"
-      @validator = JPCOARValidator.new( @url )
+      @validator = JPCOARValidatorSchematron.new( @url )
       @data = @validator.validate( @options )
     end
     erb :index
@@ -24,8 +25,8 @@ class App < Sinatra::Base
     @options = {}
     @data = nil
     if not @xml.nil? and not @xml.empty?
-      @validator = JPCOARValidatorFromString.new( @xml )
-      @data = @validator.validate
+      @validator = JPCOARValidatorSchematron.new( "" )
+      @data = @validator.validate_jpcoar_from_string( @xml )
     end
     erb :index
   end

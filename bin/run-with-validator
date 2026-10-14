@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+JAVA_PID=""
+APP_PID=""
+
+cleanup() {
+  trap - TERM INT
+
+  if [[ -n "$APP_PID" ]]; then
+    kill -TERM "$APP_PID" 2>/dev/null || true
+  fi
+
+  if [[ -n "$JAVA_PID" ]]; then
+    kill -TERM "$JAVA_PID" 2>/dev/null || true
+  fi
+
+  if [[ -n "$APP_PID" ]]; then
+    wait "$APP_PID" 2>/dev/null || true
+  fi
+
+  if [[ -n "$JAVA_PID" ]]; then
+    wait "$JAVA_PID" 2>/dev/null || true
+  fi
+}
+
+trap cleanup EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
+
+# Start Java Schematron validator
+java -jar /app/jpcoar-validator.jar &
+JAVA_PID=$!
+
+# Wait until Java HTTP server is ready
+READY=0
+
+for i in {1..40}; do
+  if curl --silent --fail \
+      http://127.0.0.1:9000/health > /dev/null; then
+    READY=1
+    break
+  fi
+
+  if ! kill -0 "$JAVA_PID" 2>/dev/null; then
+    echo "Java validator terminated during startup" >&2
+    exit 1
+  fi
+
+  sleep 0.5
+done
+
+if [[ "$READY" != "1" ]]; then
+  echo "Java validator did not become ready" >&2
+  exit 1
+fi
+
+echo "Java validator is ready."
+
+# Start Ruby application or tests
+"$@" &
+APP_PID=$!
+
+# Exit if either process terminates
+set +e
+wait -n "$JAVA_PID" "$APP_PID"
+STATUS=$?
+set -e
+
+exit "$STATUS"

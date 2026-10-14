@@ -1,0 +1,34 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# Build the Docker test stage for each Ruby version in the matrix
+# and run RSpec inside the container.
+# Each container starts the Java validator through its entrypoint
+# before running the tests.
+
+name: Ruby tests (Docker)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: [ "3.3", "3.4", "4.0" ]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build and run test
+      run: make test RUBY_VERSION=${{ matrix.ruby-version }}

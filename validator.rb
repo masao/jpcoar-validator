@@ -105,6 +105,7 @@ class JPCOARValidator
       #schema = http(URI.parse XSD).start do |con|
       #  con.get(XSD)
       #end
+      ENV["XML_CATALOG_FILES"] ||= File.expand_path("catalog.xml", __dir__)
       schema_doc = LibXML::XML::Document.file(XSD)
       @xml_schema = LibXML::XML::Schema.document(schema_doc)
       @prefix = nil
@@ -232,14 +233,44 @@ class JPCOARValidator
          end
          identifier = e.parent.find( "./oai:header/oai:identifier",
                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
-         validate_jpcoar( metadata, identifier ).each do |k, v|
-            result[k] += v
-         end
+         result = merge_results(result, validate_jpcoar( metadata, identifier ))
       end
       result
    end
 
-   def validate_jpcoar( metadata, identifier = nil )
+   def validate_jpcoar_from_string( xml )
+      parser = LibXML::XML::Parser.string( xml )
+      begin
+         doc = parser.parse
+         STDERR.puts doc.root.name
+         STDERR.puts doc.root.namespaces.map{|e| e.to_s }
+         if doc.root.name == "jpcoar"
+            validate_jpcoar( doc )
+         else
+            jpcoar = doc.find("//jpcoar:jpcoar", NAMESPACES)
+            if not jpcoar.empty?
+               metadata = LibXML::XML::Document.new
+               metadata.root = jpcoar.first.copy(true)
+               validate_jpcoar( metadata )
+            else
+               {
+                  error: [
+                     message: "jpcoar metadata not found.",
+                     error_id: :jpcoar_element_not_found,
+                  ]
+               }
+            end
+         end
+      rescue LibXML::XML::Error => err
+        { :error => [
+            :error_id => :parse_error,
+            :message => "XML parse error: #{ err.message }",
+          ]
+        }
+      end
+   end
+
+   def validate_xml_schema( metadata, identifier = nil )
       result = {
          :warn => [],
          :error=> [],
@@ -259,6 +290,7 @@ class JPCOARValidator
       begin
          metadata.validate_schema( @xml_schema )
       rescue LibXML::XML::Error => err
+         STDERR.puts err.inspect
          error_id =
             case err.message
             when /is not a valid value of the atomic type 'xs:positiveInteger'/
@@ -295,7 +327,10 @@ class JPCOARValidator
          }
          result[ :error ] << error
       end
-
+      result
+   end
+   def validate_jpcoar( metadata, identifier = nil )
+      result = validate_xml_schema( metadata, identifier )
       #1. タイトル
       #2. その他のタイトル
       %w[
@@ -835,8 +870,6 @@ class JPCOARValidator
          end
       end
 
-
-
       result
    end
 
@@ -879,41 +912,17 @@ class JPCOARValidator
       http.read_timeout = 30
       http
    end
-end
 
-class JPCOARValidatorFromString < JPCOARValidator
-   def initialize( xml )
-      @xml = xml
-      @xml_schema = LibXML::XML::Schema.new( XSD )
-   end
-   def validate
-      parser = LibXML::XML::Parser.string( @xml )
-      begin
-         doc = parser.parse
-         p doc.root.name
-         p doc.root.namespaces.to_a
-         if doc.root.name == "jpcoar"
-            validate_jpcoar( doc )
+   RESULT_ARRAY_KEYS = %i[error warn info].freeze
+   def merge_results(base, additional)
+      base.merge(additional) do |key, old_value, new_value|
+         if RESULT_ARRAY_KEYS.include?(key)
+            old_value + new_value
+         elsif old_value == new_value
+            old_value
          else
-            jpcoar = doc.find("//jpcoar:jpcoar", NAMESPACES)
-            if not jpcoar.empty?
-               doc.root = jpcoar.first
-               validate_jpcoar( doc )
-            else
-               {
-                  error: [
-                     message: "jpcoar metadata not found.",
-                     error_id: :jpcoar_element_not_found,
-                  ]
-               }
-            end
+            raise ArgumentError, "Conflicting result value: #{key}"
          end
-      rescue LibXML::XML::Error => err
-        { :error => [
-            :error_id => :parse_error,
-            :message => "XML parse error: #{ err.message }",
-          ]
-        }
       end
    end
 end

@@ -1,0 +1,123 @@
+# syntax=docker/dockerfile:1
+
+ARG RUBY_VERSION=3.4
+
+# ============================================================
+# 1. Java build stage
+# ============================================================
+FROM maven:3.9-eclipse-temurin-21 AS java-build
+
+WORKDIR /build
+
+# Maven dependencies
+COPY pom.xml ./
+#SKIP: RUN mvn -B dependency:go-offline
+
+# Java source and Schematron files
+COPY src/ ./src/
+COPY schematron/ ./schematron/
+COPY xslt/ ./xslt/
+
+# Generate XSLT and build executable JAR
+RUN mvn -B -DskipTests package
+
+# Verify generated artifacts
+RUN test -s target/jpcoar-validator.jar \
+    && test -s xslt/jpcoar2.0.xsl
+
+
+# ============================================================
+# 2. Ruby build stage
+# ============================================================
+FROM ruby:${RUBY_VERSION}-trixie AS ruby-build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libxml2-dev \
+    pkg-config \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY Gemfile Gemfile.lock ./
+
+RUN bundle config set path /usr/local/bundle \
+    && bundle install
+
+
+# ============================================================
+# 3. Shared runtime stage
+# ============================================================
+FROM ruby:${RUBY_VERSION}-trixie AS base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-21-jre-headless \
+    libxml2 \
+    libxml2-dev \
+    ca-certificates \
+    curl \
+    bash \
+    tini \
+    && rm -rf /var/lib/apt/lists/*
+
+# Verify tini installation
+RUN test -x /usr/bin/tini
+
+WORKDIR /app
+
+# Ruby dependencies
+COPY --from=ruby-build /usr/local/bundle /usr/local/bundle
+
+# Application files
+COPY . .
+
+# Java validator built by Maven
+COPY --from=java-build \
+    /build/target/jpcoar-validator.jar \
+    /app/jpcoar-validator.jar
+
+# Generated Schematron XSLT
+# Overwrite the repository copy with the build artifact
+COPY --from=java-build \
+    /build/xslt/jpcoar2.0.xsl \
+    /app/xslt/jpcoar2.0.xsl
+
+# Startup script
+RUN chmod +x /app/bin/run-with-validator
+
+# XML Catalog
+ENV XML_CATALOG_FILES=/app/catalog.xml
+
+# Internal Java HTTP validator
+ENV JAVA_VALIDATOR_URL=http://127.0.0.1:9000/validate
+
+# Ruby runtime
+ENV BUNDLE_PATH=/usr/local/bundle
+ENV LANG=C.UTF-8
+
+# Start Java and Ruby processes
+ENTRYPOINT ["/usr/bin/tini", "--", "/app/bin/run-with-validator"]
+
+
+# ============================================================
+# 4. Test stage (GitHub Actions)
+# ============================================================
+FROM base AS test
+
+ENV RACK_ENV=test
+
+CMD ["bundle", "exec", "rspec"]
+
+
+# ============================================================
+# 5. Production stage (Render)
+# ============================================================
+FROM base AS production
+
+ENV RACK_ENV=production
+ENV PORT=10000
+
+EXPOSE 10000
+
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
