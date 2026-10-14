@@ -14,7 +14,7 @@ RSpec.describe JPCOARValidatorSchematron do
           expect {
             results = validator.validate_jpcoar(doc)
           }.not_to raise_error
-          p [file, results]
+          #p [file, results]
           expect(results[:error]).to be_empty
           results[:warn].each do |warn|
             expect(warn).to have_key :identifier
@@ -36,7 +36,7 @@ RSpec.describe JPCOARValidatorSchematron do
         expect {
           results = validator.validate_jpcoar(doc)
         }.not_to raise_error
-        p [file, results]
+        #p [file, results]
         expect(results[:error]).to be_empty
       end
     end
@@ -44,7 +44,7 @@ RSpec.describe JPCOARValidatorSchematron do
       validator = JPCOARValidatorSchematron.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/5_accessRights/rdf_resource.xml"))
       results = validator.validate_jpcoar(doc)
-      p results
+      #p results
       expect(results[:error].map{|e| e[:error_id]}).to include(:access_rights_without_rdf_resource)
     end
     it "should validate the content of accessRights value." do
@@ -427,7 +427,7 @@ RSpec.describe JPCOARValidatorSchematron do
       validator = JPCOARValidatorSchematron.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example", "20_relation/vor_relation_success.xml"))
       results = validator.validate_jpcoar(doc)
-      p [results]
+      #p [results]
       expect(results[:warn].map{|e| e[:error_id]}).not_to include(:vor_relation_not_found)
     end
     it "should check award_number_format_error" do
@@ -548,7 +548,7 @@ RSpec.describe JPCOARValidatorSchematron do
       validator = JPCOARValidatorSchematron.new("")
       doc = LibXML::XML::Document.file(File.join(spec_base_dir, "example/6_rights/cc_uri_notfound.xml"))
       results = validator.validate_jpcoar(doc)
-      p results
+      #p results
       expect(results[:warn].map{|e| e[:error_id]}).to include(:rights_resource_uri_missing)
     end
   end
