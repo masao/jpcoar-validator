@@ -613,7 +613,12 @@
           id="access_rights_mismatch"
           role="error"
           test="
-            not(@rdf:resource)
+            not(@rdf:resource = (
+              'http://purl.org/coar/access_right/c_f1cf',
+              'http://purl.org/coar/access_right/c_14cb',
+              'http://purl.org/coar/access_right/c_abf2',
+              'http://purl.org/coar/access_right/c_16ec'
+            ))
             or
             (
               @rdf:resource = 'http://purl.org/coar/access_right/c_f1cf'
@@ -635,7 +640,7 @@
               and string(.) = 'restricted access'
             )
           ">
-        Element 'dcterms:accessRights' has an invalid URI and value:
+        Element 'dcterms:accessRights' has a mismatched URI and value:
         <sch:value-of select="@rdf:resource"/>
         -
         <sch:value-of select="string(.)"/>
