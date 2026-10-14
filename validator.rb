@@ -238,6 +238,37 @@ class JPCOARValidator
       result
    end
 
+   def validate_jpcoar_from_string( xml )
+      parser = LibXML::XML::Parser.string( @xml )
+      begin
+         doc = parser.parse
+         p doc.root.name
+         p doc.root.namespaces.to_a
+         if doc.root.name == "jpcoar"
+            validate_jpcoar( doc )
+         else
+            jpcoar = doc.find("//jpcoar:jpcoar", NAMESPACES)
+            if not jpcoar.empty?
+               doc.root = jpcoar.first
+               validate_jpcoar( doc )
+            else
+               {
+                  error: [
+                     message: "jpcoar metadata not found.",
+                     error_id: :jpcoar_element_not_found,
+                  ]
+               }
+            end
+         end
+      rescue LibXML::XML::Error => err
+        { :error => [
+            :error_id => :parse_error,
+            :message => "XML parse error: #{ err.message }",
+          ]
+        }
+      end
+   end
+
    def validate_xml_schema( metadata, identifier = nil )
       result = {
          :warn => [],
@@ -891,43 +922,6 @@ class JPCOARValidator
          else
             raise ArgumentError, "Conflicting result value: #{key}"
          end
-      end
-   end
-end
-
-class JPCOARValidatorFromString < JPCOARValidator
-   def initialize( xml )
-      @xml = xml
-      @xml_schema = LibXML::XML::Schema.new( XSD )
-   end
-   def validate
-      parser = LibXML::XML::Parser.string( @xml )
-      begin
-         doc = parser.parse
-         p doc.root.name
-         p doc.root.namespaces.to_a
-         if doc.root.name == "jpcoar"
-            validate_jpcoar( doc )
-         else
-            jpcoar = doc.find("//jpcoar:jpcoar", NAMESPACES)
-            if not jpcoar.empty?
-               doc.root = jpcoar.first
-               validate_jpcoar( doc )
-            else
-               {
-                  error: [
-                     message: "jpcoar metadata not found.",
-                     error_id: :jpcoar_element_not_found,
-                  ]
-               }
-            end
-         end
-      rescue LibXML::XML::Error => err
-        { :error => [
-            :error_id => :parse_error,
-            :message => "XML parse error: #{ err.message }",
-          ]
-        }
       end
    end
 end

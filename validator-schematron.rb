@@ -89,9 +89,6 @@ class JPCOARValidatorSchematron < JPCOARValidator
   end
 end
 
-class JPCOARValidatorSchematronFromString < JPCOARValidatorFromString
-end
-
 if $0 == __FILE__
    options = {
       :max => 20

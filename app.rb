@@ -25,8 +25,8 @@ class App < Sinatra::Base
     @options = {}
     @data = nil
     if not @xml.nil? and not @xml.empty?
-      @validator = JPCOARValidatorSchematronFromString.new( @xml )
-      @data = @validator.validate
+      @validator = JPCOARValidatorSchematron.new( "" )
+      @data = @validator.validate_jpcoar_from_string( @xml )
     end
     erb :index
   end
