@@ -2,18 +2,18 @@ GEM
   remote: https://rubygems.org/
   specs:
     base64 (0.3.0)
-    connection_pool (3.0.2)
+    connection_pool (3.0.3)
     diff-lcs (1.6.2)
-    faraday (2.14.4)
-      faraday-net_http (>= 2.0, < 3.5)
+    faraday (2.15.1)
+      faraday-net_http (>= 2.0, < 3.6)
       json
       logger
-    faraday-net_http (3.4.4)
+    faraday-net_http (3.5.0)
       net-http (~> 0.5)
     faraday-net_http_persistent (2.3.1)
       faraday (~> 2.5)
       net-http-persistent (>= 4.0.4, < 5)
-    json (3.0.2)
+    json (3.1.0)
     libxml-ruby (6.0.0)
     logger (1.7.0)
     mustermann (3.1.1)
@@ -25,10 +25,10 @@ GEM
     net-protocol (0.4.0)
       timeout
     nio4r (2.7.5)
-    puma (8.0.2)
+    puma (8.1.2)
       nio4r (~> 2.0)
-    rack (3.2.7)
-    rack-protection (4.2.1)
+    rack (3.2.8)
+    rack-protection (4.2.2)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
@@ -39,20 +39,20 @@ GEM
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
-    rspec-core (3.13.6)
+    rspec-core (3.13.7)
       rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.5)
+    rspec-expectations (3.13.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-mocks (3.13.8)
+    rspec-mocks (3.13.9)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-support (3.13.7)
-    sinatra (4.2.1)
+    rspec-support (3.13.8)
+    sinatra (4.2.2)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
       rack (>= 3.0.0, < 4)
-      rack-protection (= 4.2.1)
+      rack-protection (= 4.2.2)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
     tilt (2.9.0)
@@ -72,4 +72,4 @@ DEPENDENCIES
   sinatra
 
 BUNDLED WITH
-  4.0.16
+  4.0.20
